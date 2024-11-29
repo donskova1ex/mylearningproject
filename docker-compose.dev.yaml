@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+  postgres: 
+    image: postgres:15
+    hostname: postgres
+    env_file:
+      .env.dev
+    volumes:
+      - .:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U dev -d dev'"]
+      interval: 10s
+      timeout: 60s
+      retries: 5
+      start_period: 30s
+  migrations-up:
+    env_file:
+      .env.dev
+    build:
+      context: .
+      dockerfile: Dockerfile.migrations
+    command: ["goose", "-dir", "migrations", "up"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+  migrations-down:
+    env_file:
+      .env.dev
+    build:
+      context: .
+      dockerfile: Dockerfile.migrations
+    command: ["goose", "-dir", "migrations", "reset"]
+    profiles:
+      - migrations-down
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  
