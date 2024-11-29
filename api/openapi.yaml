@@ -413,27 +413,16 @@ paths:
       - ingredient
 components:
   schemas:
-    Parameters:
-      properties:
-        param1:
-          type: string
-        param2:
-          type: string
-      type: object
     witch:
       example:
         name: witch1
         id: 153cf1a3-27ac-11ef-8114-ac1f6b470613
-        hash: asdasdasdassd
       properties:
         id:
           example: 153cf1a3-27ac-11ef-8114-ac1f6b470613
           type: string
         name:
           example: witch1
-          type: string
-        hash:
-          example: asdasdasdassd
           type: string
       required:
       - id
@@ -442,8 +431,8 @@ components:
     recipe:
       example:
         name: power_elixir
+        brew_time_seconds: 160
         id: 9402d46c-5f1d-11e7-9c49-94de806030a5
-        brew_time_second: 160
       properties:
         id:
           example: 9402d46c-5f1d-11e7-9c49-94de806030a5
@@ -451,7 +440,7 @@ components:
         name:
           example: power_elixir
           type: string
-        brew_time_second:
+        brew_time_seconds:
           example: 160
           type: integer
       required:

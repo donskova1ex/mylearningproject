@@ -13,17 +13,17 @@ package openapi
 
 
 
-type Witch struct {
+type Recipe struct {
 
 	Id string `json:"id"`
 
 	Name string `json:"name"`
 
-	Hash string `json:"hash,omitempty"`
+	BrewTimeSeconds int32 `json:"brew_time_seconds,omitempty"`
 }
 
-// AssertWitchRequired checks if the required fields are not zero-ed
-func AssertWitchRequired(obj Witch) error {
+// AssertRecipeRequired checks if the required fields are not zero-ed
+func AssertRecipeRequired(obj Recipe) error {
 	elements := map[string]interface{}{
 		"id": obj.Id,
 		"name": obj.Name,
@@ -37,7 +37,7 @@ func AssertWitchRequired(obj Witch) error {
 	return nil
 }
 
-// AssertWitchConstraints checks if the values respects the defined constraints
-func AssertWitchConstraints(obj Witch) error {
+// AssertRecipeConstraints checks if the values respects the defined constraints
+func AssertRecipeConstraints(obj Recipe) error {
 	return nil
 }

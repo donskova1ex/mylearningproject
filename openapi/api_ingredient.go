@@ -14,8 +14,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
-
+	"errors"
 	"github.com/gorilla/mux"
+	"io"
 )
 
 // IngredientAPIController binds http requests to an api service and writes the service results to the http response

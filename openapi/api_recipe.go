@@ -14,6 +14,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"errors"
+	"io"
 
 	"github.com/gorilla/mux"
 )

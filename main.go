@@ -14,7 +14,6 @@ import (
 	"log"
 	"net/http"
 
-	//openapi "github.com/GIT_USER_ID/GIT_REPO_ID/openapi"
 	openapi "github.com/donskova1ex/mylearningproject/openapi"
 )
 

@@ -13,21 +13,18 @@ package openapi
 
 
 
-type Recipe struct {
+type Witch struct {
 
 	Id string `json:"id"`
 
 	Name string `json:"name"`
-
-	BrewTimeSecond int32 `json:"brew_time_second"`
 }
 
-// AssertRecipeRequired checks if the required fields are not zero-ed
-func AssertRecipeRequired(obj Recipe) error {
+// AssertWitchRequired checks if the required fields are not zero-ed
+func AssertWitchRequired(obj Witch) error {
 	elements := map[string]interface{}{
 		"id": obj.Id,
 		"name": obj.Name,
-		"brew_time_second": obj.BrewTimeSecond,
 	}
 	for name, el := range elements {
 		if isZero := IsZeroValue(el); isZero {
@@ -38,7 +35,7 @@ func AssertRecipeRequired(obj Recipe) error {
 	return nil
 }
 
-// AssertRecipeConstraints checks if the values respects the defined constraints
-func AssertRecipeConstraints(obj Recipe) error {
+// AssertWitchConstraints checks if the values respects the defined constraints
+func AssertWitchConstraints(obj Witch) error {
 	return nil
 }

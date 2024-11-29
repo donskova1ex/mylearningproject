@@ -381,13 +381,6 @@ paths:
           description: Invalid ingredient value
 components:
   schemas:
-    Parameters:
-      type: object
-      properties:
-        param1:
-          type: string
-        param2:
-          type: string
     witch:
       required:
         - id
@@ -400,9 +393,6 @@ components:
         name:
           type: string
           example: witch1
-        hash:
-          type: string
-          example: asdasdasdassd
     recipe:
       required: 
         - id
@@ -416,7 +406,7 @@ components:
         name: 
           type: string
           example: power_elixir
-        brew_time_second:
+        brew_time_seconds:
           type: integer
           example: 160
     ingredient:
