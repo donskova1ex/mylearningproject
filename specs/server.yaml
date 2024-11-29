@@ -1,0 +1,433 @@
+openapi: 3.0.0
+info:
+  title: Swagger Potion maker - OpenAPI 3.0
+  description: |-
+   Сервис изготовления зелий
+  version: 1.0.0
+servers:
+  - url: https://potionsmaker.swagger.io/api/v1
+tags:
+  - name: witch
+    description: Everything about witches
+  - name: recipe
+    description: Everything about witches recipes
+  - name: ingredient
+    description: Everything about ingredients
+  - name: potion
+    description: Everything about potions
+paths:
+  /witches:
+    get:
+      tags: 
+        - witch
+      summary: witches list
+      description: witches list
+      operationId: witchesList
+      responses:
+        '200':
+          description: successful operation
+          content: 
+            application/json: 
+              schema: 
+                type: array
+                items: 
+                  $ref: '#/components/schemas/witch'
+        '204':
+          description: Empty array
+  /witch:
+    get: 
+      tags: 
+        - witch
+      summary: Find witch by parametrs
+      description: Returns a single witch
+      operationId: getWitch
+      parameters: 
+        - name: id
+          in: query
+          description: ID of witch to return
+          schema: 
+            type: string
+        - name: name
+          in: query
+          description: Name of witch to return
+          schema: 
+            type: string
+      responses: 
+        '200':
+          description: successful operation
+          content: 
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/witch'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Witch not found
+  /witch/{id}:
+    get: 
+      tags: 
+        - witch
+      summary: Find witch by ID
+      description: Returns a single witch
+      operationId: getWitchById
+      parameters: 
+        - name: id
+          in: path
+          description: ID of witch to return
+          required: true
+          schema: 
+            type: string
+      responses: 
+        '200':
+          description: successful operation
+          content: 
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/witch'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Witch not found
+    delete:
+      tags:
+        - witch
+      summary: Deletes a witch
+      description: delete a witch
+      operationId: deleteWitch
+      parameters:
+        - name: id
+          in: path
+          description: Witch id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: Invalid witch value
+    put:
+      tags: 
+        - witch
+      summary: Update a witch in the store with form data
+      description: ''
+      operationId: updateWitchWithForm
+      parameters:
+        - name: id
+          in: path
+          description: Edit witch by id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/witch'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/witch'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Witch not found
+        '422':
+          description: Validation exception
+
+  /recipes:
+    get:
+      tags: 
+        - recipe
+      summary: recipes list
+      description: recipes list
+      operationId: recipesList
+      responses:
+        '200':
+          description: successful operation
+          content: 
+            application/json: 
+              schema: 
+                type: array
+                items: 
+                  $ref: '#/components/schemas/recipe'
+        '204':
+          description: Empty array 
+  /recipe:
+    get: 
+      tags: 
+        - recipe
+      summary: Find recipe by paramets
+      description: Returns a single recipe
+      operationId: getRecipe
+      parameters: 
+        - name: id
+          in: query
+          description: ID of recipe to return
+          schema: 
+            type: string
+        - name: name
+          in: query
+          description: Name of recipe to return
+          schema: 
+            type: string
+      responses: 
+        '200':
+          description: successful operation
+          content: 
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/recipe'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Recipe not found
+  /recipe/{id}:
+    get: 
+      tags: 
+        - recipe
+      summary: Find recipe by ID
+      description: Returns a single recipe
+      operationId: getRecipeById
+      parameters: 
+        - name: id
+          in: path
+          description: ID of recipe to return
+          required: true
+          schema: 
+            type: string
+      responses: 
+        '200':
+          description: successful operation
+          content: 
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/recipe'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Recipe not found
+    put:
+      tags: 
+        - recipe
+      summary: Update a recipe by id
+      description: ''
+      operationId: updateRecipeWithForm
+      parameters: 
+        - name: id
+          in: path
+          description: ID of recipe to edit
+          required: true
+          schema: 
+            type: string
+      requestBody: 
+        description: Update a Recipe
+        content:
+          application/json: 
+            schema: 
+              $ref: '#/components/schemas/recipe' 
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/recipe'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Witch not found
+        '422':
+          description: Validation exception
+    delete:
+      tags:
+        - recipe
+      summary: Delete recipe
+      description: Delete recipe
+      operationId: deleteRecipe
+      parameters:
+        - name: id
+          in: path
+          description: Recipe id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: Invalid witch value
+  /ingredient:
+    get:
+      tags: 
+        - ingredient
+      summary: Ingredient by name
+      description: Ingredients by name
+      operationId: ingredientsByName
+      parameters: 
+        - name: name
+          in: query
+          description: Ingredients by name
+          required: false
+          schema:
+            type: string
+        - name: id
+          in: query
+          description: Ingredients by id
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content: 
+            application/json: 
+              schema: 
+                items: 
+                  $ref: '#/components/schemas/ingredient'
+        '204':
+          description: Empty array
+  
+  /ingredients:
+    get:
+      tags: 
+        - ingredient
+      summary: Ingredients list
+      description: Ingredients list
+      operationId: ingredientsList
+      responses:
+        '200':
+          description: successful operation
+          content: 
+            application/json: 
+              schema: 
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ingredient'
+        '204':
+          description: Empty array
+  /ingredient/{id}:
+    get: 
+      tags: 
+        - ingredient
+      summary: Find ingredient by ID
+      description: Returns a single ingredient
+      operationId: getIngredientById
+      parameters: 
+        - name: id
+          in: path
+          description: ID of ingredient to return
+          required: true
+          schema: 
+            type: string
+      responses: 
+        '200':
+          description: successful operation
+          content: 
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/ingredient'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Recipe not found
+    put:
+      tags: 
+        - ingredient
+      summary: Update a ingredient by id
+      description: Update a ingredient by id 
+      operationId: updateIngredient
+      parameters: 
+        - name: id
+          in: path
+          description: ID of ingredient to return
+          required: true
+          schema: 
+            type: string
+      requestBody: 
+        description: Update a ingredient
+        content:
+          application/json: 
+            schema: 
+              $ref: '#/components/schemas/ingredient' 
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ingredient'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Ingredient not found
+        '422':
+          description: Validation exception
+    delete:
+      tags:
+        - ingredient
+      summary: Delete ingredient
+      description: Delete ingredient
+      operationId: deleteIngredient
+      parameters:
+        - name: id
+          in: path
+          description: ingredient id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: Invalid ingredient value
+components:
+  schemas:
+    Parameters:
+      type: object
+      properties:
+        param1:
+          type: string
+        param2:
+          type: string
+    witch:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+          example: 153cf1a3-27ac-11ef-8114-ac1f6b470613
+        name:
+          type: string
+          example: witch1
+        hash:
+          type: string
+          example: asdasdasdassd
+    recipe:
+      required: 
+        - id
+        - name
+        - brew_time_second
+      type: object
+      properties: 
+        id: 
+          type: string
+          example: 9402d46c-5f1d-11e7-9c49-94de806030a5
+        name: 
+          type: string
+          example: power_elixir
+        brew_time_second:
+          type: integer
+          example: 160
+    ingredient:
+      required: 
+        - id
+        - name
+      type: object
+      properties: 
+        id: 
+          type: string
+          example: 7ac55177-9508-11ef-8115-ac1f6b470613
+        name: 
+          type: string
+          example: frog_leg
