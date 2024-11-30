@@ -22,4 +22,5 @@ func main() {
 	router := openapi.NewRouter(IngredientAPIController, RecipeAPIController, WitchAPIController)
 
 	log.Fatal(http.ListenAndServe(":8080", router))
+
 }
