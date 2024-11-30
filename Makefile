@@ -1,3 +1,5 @@
+include scripts/*.mk
+
 dev-build:
 	docker compose -f docker-compose.dev.yaml build
 dev-up:

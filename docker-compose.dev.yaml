@@ -35,5 +35,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-
-  
+  api:
+    hostname: api
+    container_name: api
+    build: 
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - 8080:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
