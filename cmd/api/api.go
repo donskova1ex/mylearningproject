@@ -2,14 +2,20 @@ package main
 
 import (
 	"log"
+	"log/slog"
 	"net/http"
+	"os"
 
 	openapi "github.com/donskova1ex/mylearningproject/openapi"
 )
 
 func main() {
-	log.Printf("Server started")
+	//logger start
+	logger := slog.New(slog.NewJSONHandler(os.Stdin, nil))
+	logger.Info("application start")
+	slog.SetDefault(logger)
 
+	//logger end
 	IngredientAPIService := openapi.NewIngredientAPIService()
 	IngredientAPIController := openapi.NewIngredientAPIController(IngredientAPIService)
 

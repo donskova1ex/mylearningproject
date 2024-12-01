@@ -11,34 +11,45 @@
 package openapi
 
 import (
+	"fmt"
+	"log/slog"
 	"context"
-	"net/http"
 	"errors"
+	"net/http"
+
+	"github.com/donskova1ex/mylearningproject/internal/domain"
 )
 
 // RecipeAPIService is a service that implements the logic for the RecipeAPIServicer
 // This service should implement the business logic for every endpoint for the RecipeAPI API.
 // Include any external packages or services that will be required by this service.
+type RecipesProcessor interface{
+	RecipesList() ([]*domain.Recipe, error)
+}
+
 type RecipeAPIService struct {
+	recipesProcessor RecipesProcessor
+	log *slog.Logger
 }
 
 // NewRecipeAPIService creates a default api service
-func NewRecipeAPIService() *RecipeAPIService {
-	return &RecipeAPIService{}
+func NewRecipeAPIService(recipesProcessor RecipesProcessor,log *slog.Logger) *RecipeAPIService {
+	return &RecipeAPIService{recipesProcessor : recipesProcessor, log : log}
 }
 
 // RecipesList - recipes list
 func (s *RecipeAPIService) RecipesList(ctx context.Context) (ImplResponse, error) {
-	// TODO - update RecipesList with the required logic for this service method.
-	// Add api_recipe_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	recipes, err := s.recipesProcessor.RecipesList()
+	if err != nil {
+		return Response(http.StatusInternalServerError, nil), fmt.Errorf("unable to get recipes: %w", err)
+	}
+	openApiRecepies := domainRecepiesToOpenApi()
 
-	// TODO: Uncomment the next line to return response Response(200, []Recipe{}) or use other options such as http.Ok ...
-	// return Response(200, []Recipe{}), nil
+	return Response(http.StatusNotImplemented, openApiRecepies), nil
+}
 
-	// TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
-	// return Response(204, nil),nil
+func domainRecepiesToOpenApi(domainRecepies []*domain.Recipe) []*Recipe {
 
-	return Response(http.StatusNotImplemented, nil), errors.New("RecipesList method not implemented")
 }
 
 // GetRecipe - Find recipe by paramets
