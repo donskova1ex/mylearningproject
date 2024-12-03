@@ -19,7 +19,9 @@ func NewRecipes(recipesRepository RecipesRepository, log *slog.Logger) *recipes 
 }
 
 func (p *recipes) RecipesList() ([]*domain.Recipe, error) {
-	//RecipesAll()
-	//RecipesToIngredients()
-	//IngredientsAll()
+
 }
+
+//RecipesAll()
+//RecipesToIngredients()
+//IngredientsAll()
