@@ -12,19 +12,29 @@ package openapi
 
 import (
 	"context"
-	"net/http"
 	"errors"
+	"log/slog"
+	"net/http"
+
+	"github.com/donskova1ex/mylearningproject/internal/domain"
 )
 
 // IngredientAPIService is a service that implements the logic for the IngredientAPIServicer
 // This service should implement the business logic for every endpoint for the IngredientAPI API.
 // Include any external packages or services that will be required by this service.
+
+type IngredientsProcessor interface{
+	IngredientsList() ([]*domain.Ingredient, error)
+}
+
 type IngredientAPIService struct {
+	ingredientsProcessor IngredientsProcessor
+	log *slog.Logger
 }
 
 // NewIngredientAPIService creates a default api service
-func NewIngredientAPIService() *IngredientAPIService {
-	return &IngredientAPIService{}
+func NewIngredientAPIService(ingredientsProcessor IngredientsProcessor,log *slog.Logger) *IngredientAPIService {
+	return &IngredientAPIService{ingredientsProcessor: ingredientsProcessor, log: log}
 }
 
 // IngredientsByName - Ingredient by name

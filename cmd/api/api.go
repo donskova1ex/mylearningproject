@@ -14,8 +14,8 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdin, nil))
 	logger.Info("application start")
 	slog.SetDefault(logger)
-
 	//logger end
+
 	IngredientAPIService := openapi.NewIngredientAPIService()
 	IngredientAPIController := openapi.NewIngredientAPIController(IngredientAPIService)
 
