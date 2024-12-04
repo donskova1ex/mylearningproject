@@ -1,6 +1,7 @@
 package domain
 
 type Ingredient struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
+	InternalID uint64
+	Id         string `json:"id"`
+	Name       string `json:"name"`
 }

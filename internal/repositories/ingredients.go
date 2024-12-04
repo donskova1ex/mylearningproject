@@ -17,7 +17,7 @@ func NewIngredientPostgres(db *sqlx.DB) *IngredientsPostgres {
 
 func (i *IngredientsPostgres) CreateIngredient(ingredient domain.Ingredient) (string, error) {
 	var id string
-	query := fmt.Sprintf("INSERT INTO %s (name) values ($1) RETURNING id")
+	query := fmt.Sprintf("INSERT INTO ingredients (name) values ($1) RETURNING id")
 	row := i.db.QueryRow(query, ingredient.Name)
 	if err := row.Scan(&id); err != nil {
 		return "", err

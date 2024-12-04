@@ -4,9 +4,12 @@ import (
 	"log/slog"
 
 	"github.com/donskova1ex/mylearningproject/internal/domain"
+	"github.com/donskova1ex/mylearningproject/internal/repositories"
+	"github.com/jmoiron/sqlx"
 )
 
 type RecipesRepository interface {
+	NewRecipePostgres(db *sqlx.DB) *repositories.RecipesPostgres
 }
 
 type recipes struct {
@@ -19,7 +22,18 @@ func NewRecipes(recipesRepository RecipesRepository, log *slog.Logger) *recipes 
 }
 
 func (p *recipes) RecipesList() ([]*domain.Recipe, error) {
+	db, err := repositories.DBConnection()
+	if err != nil {
+		return nil, err
+	}
 
+	r := p.recipesRepository.NewRecipePostgres(db)
+
+	recipes, err := r.RecipesAll()
+	if err != nil {
+		return nil, err
+	}
+	return recipes, nil
 }
 
 //RecipesAll()
