@@ -17,10 +17,10 @@ func NewRecipePostgres(db *sqlx.DB) *RecipesPostgres {
 
 func (r *RecipesPostgres) CreateRecipe(recipe domain.Recipe) (string, error) {
 	var id string
-	query := fmt.Sprintf("INSERT INTO recipes (Name, BrewTimeSeconds, Ingredients) values ($1, $2, $3)RETURNING id") //???
-	row := r.db.QueryRow(query, recipe.Name, recipe.BrewTimeSeconds, recipe.Ingredients)                             // ???
-	if error := row.Scan(&id); error != nil {
-		return "", error
+	query := "INSERT INTO recipes (Name, BrewTimeSeconds, Ingredients) values ($1, $2, $3)RETURNING id" //???
+	row := r.db.QueryRow(query, recipe.Name, recipe.BrewTimeSeconds, recipe.Ingredients)                // ???
+	if err := row.Scan(&id); err != nil {
+		return "", fmt.Errorf("impossible to create an entity: %w", err)
 	}
 	return id, nil
 }
@@ -28,15 +28,15 @@ func (r *RecipesPostgres) CreateRecipe(recipe domain.Recipe) (string, error) {
 func (r *RecipesPostgres) RecipesAll() ([]*domain.Recipe, error) {
 	recipes := []*domain.Recipe{}
 
-	rows, error := r.db.Queryx("SELECT * FROM recipes")
-	if error != nil {
-		return nil, error
+	rows, err := r.db.Queryx("SELECT * FROM recipes")
+	if err != nil {
+		return nil, err //TODO: Обернуть
 	}
 
 	for rows.Next() {
-		error = rows.Scan(&recipes)
-		if error != nil {
-			return nil, error
+		err = rows.Scan(&recipes)
+		if err != nil {
+			return nil, err //TODO: Обернуть
 		}
 	}
 	return recipes, nil

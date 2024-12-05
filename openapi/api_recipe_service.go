@@ -11,7 +11,6 @@
 package openapi
 
 import (
-	"fmt"
 	"log/slog"
 	"context"
 	"errors"
@@ -39,17 +38,18 @@ func NewRecipeAPIService(recipesProcessor RecipesProcessor,log *slog.Logger) *Re
 
 // RecipesList - recipes list
 func (s *RecipeAPIService) RecipesList(ctx context.Context) (ImplResponse, error) {
-	recipes, err := s.recipesProcessor.RecipesList()
-	if err != nil {
-		return Response(http.StatusInternalServerError, nil), fmt.Errorf("unable to get recipes: %w", err)
-	}
-	openApiRecepies := domainRecepiesToOpenApi()
+	// recipes, err := s.recipesProcessor.RecipesList()
+	// if err != nil {
+	// 	return Response(http.StatusInternalServerError, nil), fmt.Errorf("unable to get recipes: %w", err)
+	// }
+	// openApiRecepies := domainRecepiesToOpenApi()
 
-	return Response(http.StatusNotImplemented, openApiRecepies), nil
+	return Response(http.StatusNotImplemented, nil), nil
+
 }
 
 func domainRecepiesToOpenApi(domainRecepies []*domain.Recipe) []*Recipe {
-
+return nil
 }
 
 // GetRecipe - Find recipe by paramets

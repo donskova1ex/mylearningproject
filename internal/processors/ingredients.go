@@ -2,21 +2,27 @@ package processors
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/donskova1ex/mylearningproject/internal/domain"
 )
 
+//go:generate mockgen -destination=./mocks/ingredients_repository.go -package=mocks -mock_names=IngredientsRepository=IngredientsRepository . IngredientsRepository
 type IngredientsRepository interface {
 	IngredientsAll(ctx context.Context) ([]*domain.Ingredient, error)
 }
 
-type ingredients struct {
-	ingredientsRepository IngredientsRepository
-	log                   *slog.Logger
+//go:generate mockgen -destination=./mocks/ingredients_logger.go -package=mocks -mock_names=IngredientsLogger=IngredientsLogger . IngredientsLogger
+type IngredientsLogger interface { //TODO: добавить во все
+	Error(msg string, args ...any)
+	Info(msg string, args ...any)
 }
 
-func NewIngredient(ingredientsRepository IngredientsRepository, log *slog.Logger) *ingredients {
+type ingredients struct {
+	ingredientsRepository IngredientsRepository
+	log                   IngredientsLogger
+}
+
+func NewIngredient(ingredientsRepository IngredientsRepository, log IngredientsLogger) *ingredients {
 	return &ingredients{ingredientsRepository: ingredientsRepository, log: log}
 }
 

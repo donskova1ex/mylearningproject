@@ -24,7 +24,7 @@ import (
 // Include any external packages or services that will be required by this service.
 
 type IngredientsProcessor interface{
-	IngredientsList() ([]*domain.Ingredient, error)
+	IngredientsList(ctx context.Context) ([]*domain.Ingredient, error)
 }
 
 type IngredientAPIService struct {

@@ -17,14 +17,19 @@ func main() {
 	logger.Info("application start")
 	slog.SetDefault(logger)
 	//logger end
-	db := repositories.NewPostgresDB()
+	db, err := repositories.NewPostgresDB(repositories.Config{})
+	if err != nil {
+		logger.Error("can not postgres db connection", slog.String("error", err.Error()))
+		return
+	}
+	defer db.Close()
 	ingredientRepository := repositories.NewIngredientPostgres(db)
 	ingProcessor := processors.NewIngredient(ingredientRepository, logger)
 
-	IngredientAPIService := openapi.NewIngredientAPIService(ingProcessor)
+	IngredientAPIService := openapi.NewIngredientAPIService(ingProcessor, logger)
 	IngredientAPIController := openapi.NewIngredientAPIController(IngredientAPIService)
 
-	RecipeAPIService := openapi.NewRecipeAPIService()
+	RecipeAPIService := openapi.NewRecipeAPIService(nil, logger)
 	RecipeAPIController := openapi.NewRecipeAPIController(RecipeAPIService)
 
 	WitchAPIService := openapi.NewWitchAPIService()
