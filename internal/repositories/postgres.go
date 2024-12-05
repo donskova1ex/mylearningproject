@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"fmt"
+	"net/url"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -31,6 +31,15 @@ func NewPostgresDB(cfg Config) (*sqlx.DB, error) {
 }
 
 func connectString(cfg Config) string {
-	return fmt.Sprintf("host = %s port=%s user=%s dbname=%s password=%s sslmode=%s",
-		cfg.Host, cfg.Port, cfg.Username, cfg.DBName, cfg.Password, cfg.SSLMode)
+
+	databaseURL := &url.URL{
+		Scheme: "postgres",
+		Host:   cfg.Host + ":" + cfg.Port,
+		Path:   "/" + cfg.DBName,
+		User:   url.UserPassword("dev", "dev1234"),
+	}
+	rawQuery := make(url.Values)
+	rawQuery.Set("ssl_mode", "disable")
+	databaseURL.RawQuery = rawQuery.Encode()
+	return databaseURL.String()
 }

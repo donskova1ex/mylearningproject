@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/donskova1ex/mylearningproject/internal/processors"
+	"github.com/donskova1ex/mylearningproject/internal/repositories"
 	openapi "github.com/donskova1ex/mylearningproject/openapi"
 )
 
@@ -15,8 +17,11 @@ func main() {
 	logger.Info("application start")
 	slog.SetDefault(logger)
 	//logger end
+	db := repositories.NewPostgresDB()
+	ingredientRepository := repositories.NewIngredientPostgres(db)
+	ingProcessor := processors.NewIngredient(ingredientRepository, logger)
 
-	IngredientAPIService := openapi.NewIngredientAPIService()
+	IngredientAPIService := openapi.NewIngredientAPIService(ingProcessor)
 	IngredientAPIController := openapi.NewIngredientAPIController(IngredientAPIService)
 
 	RecipeAPIService := openapi.NewRecipeAPIService()

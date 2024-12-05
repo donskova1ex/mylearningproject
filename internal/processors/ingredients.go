@@ -1,15 +1,14 @@
 package processors
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/donskova1ex/mylearningproject/internal/domain"
-	"github.com/donskova1ex/mylearningproject/internal/repositories"
-	"github.com/jmoiron/sqlx"
 )
 
 type IngredientsRepository interface {
-	NewIngredientPostgres(db *sqlx.DB) *repositories.IngredientsPostgres
+	IngredientsAll(ctx context.Context) ([]*domain.Ingredient, error)
 }
 
 type ingredients struct {
@@ -21,17 +20,12 @@ func NewIngredient(ingredientsRepository IngredientsRepository, log *slog.Logger
 	return &ingredients{ingredientsRepository: ingredientsRepository, log: log}
 }
 
-func (i *ingredients) IngredientsList() ([]*domain.Ingredient, error) {
-	db, error := repositories.DBConnection()
-	if error != nil {
-		return nil, error
+func (i *ingredients) IngredientsList(ctx context.Context) ([]*domain.Ingredient, error) {
+
+	r, err := i.ingredientsRepository.IngredientsAll(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	r := i.ingredientsRepository.NewIngredientPostgres(db)
-	ingredients, error := r.IngredientsAll()
-
-	if error != nil {
-		return nil, error
-	}
-	return ingredients, nil
+	return r, nil
 }

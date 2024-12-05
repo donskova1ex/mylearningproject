@@ -10,7 +10,7 @@ import (
 
 func DBConnection() (*sqlx.DB, error) {
 	if err := godotenv.Load(); err != nil {
-		fmt.Errorf("unable to read env")
+		return nil, fmt.Errorf("unable to read env")
 	}
 	db, err := NewPostgresDB(Config{
 		Host:     "localhost",
@@ -21,7 +21,7 @@ func DBConnection() (*sqlx.DB, error) {
 		SSLMode:  os.Getenv("POSTGRES_SSL_MODE"),
 	})
 	if err != nil {
-		fmt.Errorf("failed to initialize db")
+		return nil, fmt.Errorf("failed to initialize db")
 	}
 	return db, nil
 }
