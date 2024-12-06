@@ -29,7 +29,7 @@ func main() {
 	IngredientAPIService := openapi.NewIngredientAPIService(ingProcessor, logger)
 	IngredientAPIController := openapi.NewIngredientAPIController(IngredientAPIService)
 
-	RecipeAPIService := openapi.NewRecipeAPIService(nil, logger)
+	RecipeAPIService := openapi.NewRecipeAPIService(, logger)
 	RecipeAPIController := openapi.NewRecipeAPIController(RecipeAPIService)
 
 	WitchAPIService := openapi.NewWitchAPIService()
