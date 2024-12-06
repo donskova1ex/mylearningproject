@@ -48,9 +48,9 @@ func (s *RecipeAPIService) RecipesList(ctx context.Context) (ImplResponse, error
 
 }
 
-func domainRecepiesToOpenApi(domainRecepies []*domain.Recipe) []*Recipe {
-return nil
-}
+// func domainRecepiesToOpenApi(domainRecepies []*domain.Recipe) []*Recipe { //почему-то нет в ингредиентах, но есть в рецептах
+// return nil
+// }
 
 // GetRecipe - Find recipe by paramets
 func (s *RecipeAPIService) GetRecipe(ctx context.Context, id string, name string) (ImplResponse, error) {

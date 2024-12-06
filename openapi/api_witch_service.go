@@ -12,14 +12,23 @@ package openapi
 
 import (
 	"context"
-	"net/http"
 	"errors"
+	"log/slog"
+	"net/http"
+
+	"github.com/donskova1ex/mylearningproject/internal/domain"
 )
 
 // WitchAPIService is a service that implements the logic for the WitchAPIServicer
 // This service should implement the business logic for every endpoint for the WitchAPI API.
 // Include any external packages or services that will be required by this service.
+type WitchesProcessor interface{
+	WitchesList(ctx context.Context) ([]*domain.Witch)
+}
+
 type WitchAPIService struct {
+	witchesProcessor domain.Witch
+	log *slog.Logger
 }
 
 // NewWitchAPIService creates a default api service
