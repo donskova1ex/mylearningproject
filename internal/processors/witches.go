@@ -2,6 +2,8 @@ package processors
 
 import (
 	"context"
+	"fmt"
+
 	"github.com/donskova1ex/mylearningproject/internal/domain"
 )
 
@@ -15,6 +17,19 @@ type WitchesLogger interface {
 }
 
 type witches struct {
-	WitchesRepository WitchesRepository
+	witchesRepository WitchesRepository
 	log               WitchesLogger
+}
+
+func NewWitch(witchesRepository WitchesRepository, log WitchesLogger) *witches {
+	return &witches{witchesRepository: witchesRepository, log: log}
+}
+
+func (wtch *witches) WitchesList(ctx context.Context) ([]*domain.Witch, error) {
+	w, err := wtch.witchesRepository.WitchesAll(ctx)
+	if err != nil {
+		wtch.log.Error("witches list processor error")
+		return nil, fmt.Errorf("witches list processor error: %w", err)
+	}
+	return w, nil
 }
