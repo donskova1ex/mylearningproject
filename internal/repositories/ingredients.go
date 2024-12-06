@@ -25,7 +25,7 @@ func (i *IngredientsPostgres) CreateIngredient(ctx context.Context, ingredient *
 	newUUID := uuid.NewString()
 	row := i.db.QueryRow(query, ingredient.Name, newUUID)
 	if err := row.Scan(&id); err != nil {
-		return nil, fmt.Errorf("impossible to create an entity: %w", err) //TODO: обертка ошибок через fmt.Errorf (пример в телеге)
+		return nil, fmt.Errorf("impossible to create an entity: %w", err) //TODO: обертка ошибок через fmt.Errorf
 	}
 	newIngr := &domain.Ingredient{
 		Name: ingredient.Name,
@@ -39,7 +39,7 @@ func (i *IngredientsPostgres) IngredientsAll(ctx context.Context) ([]*domain.Ing
 	ingredients := []*domain.Ingredient{}
 	rows, err := i.db.Queryx("SELECT uuid, id, name FROM ingredients")
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("empty answer: %w", err)
+		return nil, fmt.Errorf("empty table: %w", err)
 	}
 	if err != nil {
 		return nil, err

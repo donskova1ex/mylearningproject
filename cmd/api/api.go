@@ -23,13 +23,15 @@ func main() {
 		return
 	}
 	defer db.Close()
+
 	ingredientRepository := repositories.NewIngredientPostgres(db)
 	ingProcessor := processors.NewIngredient(ingredientRepository, logger)
-
 	IngredientAPIService := openapi.NewIngredientAPIService(ingProcessor, logger)
 	IngredientAPIController := openapi.NewIngredientAPIController(IngredientAPIService)
 
-	RecipeAPIService := openapi.NewRecipeAPIService(, logger)
+	recipeReposirory := repositories.NewRecipePostgres(db)
+	recipeProcessor := processors.NewRecipe(recipeReposirory, logger)
+	RecipeAPIService := openapi.NewRecipeAPIService(recipeProcessor, logger)
 	RecipeAPIController := openapi.NewRecipeAPIController(RecipeAPIService)
 
 	WitchAPIService := openapi.NewWitchAPIService()

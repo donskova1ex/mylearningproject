@@ -1,9 +1,13 @@
 package repositories
 
 import (
+	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/donskova1ex/mylearningproject/internal/domain"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -15,28 +19,40 @@ func NewRecipePostgres(db *sqlx.DB) *RecipesPostgres {
 	return &RecipesPostgres{db: db}
 }
 
-func (r *RecipesPostgres) CreateRecipe(recipe domain.Recipe) (string, error) {
-	var id string
-	query := "INSERT INTO recipes (Name, BrewTimeSeconds, Ingredients) values ($1, $2, $3)RETURNING id" //???
-	row := r.db.QueryRow(query, recipe.Name, recipe.BrewTimeSeconds, recipe.Ingredients)                // ???
+func (r *RecipesPostgres) CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
+	var id uint32
+	query := "INSERT INTO recipes (uuid, Name, BrewTimeSeconds) values ($1, $2, $3)RETURNING id"
+	newUUID := uuid.NewString()
+	row := r.db.QueryRow(query, newUUID, recipe.Name, recipe.BrewTimeSeconds)
 	if err := row.Scan(&id); err != nil {
-		return "", fmt.Errorf("impossible to create an entity: %w", err)
+		return nil, fmt.Errorf("impossible to create an entity: %w", err)
 	}
-	return id, nil
+
+	newRecipe := &domain.Recipe{
+		UUID:            newUUID,
+		ID:              id,
+		Name:            recipe.Name,
+		BrewTimeSeconds: recipe.BrewTimeSeconds,
+	}
+	return newRecipe, nil
 }
 
-func (r *RecipesPostgres) RecipesAll() ([]*domain.Recipe, error) {
+func (r *RecipesPostgres) RecipesAll(ctx context.Context) ([]*domain.Recipe, error) {
 	recipes := []*domain.Recipe{}
 
-	rows, err := r.db.Queryx("SELECT * FROM recipes")
-	if err != nil {
-		return nil, err //TODO: Обернуть
+	rows, err := r.db.Queryx("SELECT uuid, id, name, brew_time_seconds FROM recipes")
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, fmt.Errorf("empty table: %w", err)
 	}
 
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 	for rows.Next() {
-		err = rows.Scan(&recipes)
+		err = rows.StructScan(&recipes)
 		if err != nil {
-			return nil, err //TODO: Обернуть
+			return nil, fmt.Errorf("unable to perform ingredients select: %w", err)
 		}
 	}
 	return recipes, nil

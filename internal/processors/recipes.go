@@ -1,39 +1,37 @@
 package processors
 
 import (
-	"log/slog"
+	"context"
+	"fmt"
 
 	"github.com/donskova1ex/mylearningproject/internal/domain"
-	"github.com/donskova1ex/mylearningproject/internal/repositories"
-	"github.com/jmoiron/sqlx"
 )
 
 type RecipesRepository interface {
-	NewRecipePostgres(db *sqlx.DB) *repositories.RecipesPostgres
+	RecipesAll(ctx context.Context) ([]*domain.Recipe, error)
+}
+
+type RecipesLogger interface {
+	Error(msg string, args ...any)
+	Info(msg string, args ...any)
 }
 
 type recipes struct {
 	recipesRepository RecipesRepository
-	log               *slog.Logger
+	log               RecipesLogger
 }
 
-func NewRecipes(recipesRepository RecipesRepository, log *slog.Logger) *recipes {
+func NewRecipe(recipesRepository RecipesRepository, log RecipesLogger) *recipes {
 	return &recipes{recipesRepository: recipesRepository, log: log}
 }
 
-func (p *recipes) RecipesList() ([]*domain.Recipe, error) {
-	db, err := repositories.DBConnection()
+func (res *recipes) RecipesList(ctx context.Context) ([]*domain.Recipe, error) {
+	r, err := res.recipesRepository.RecipesAll(ctx)
 	if err != nil {
-		return nil, err
+		res.log.Error("recipes list processor error")
+		return nil, fmt.Errorf("recipes list processor error: %w", err)
 	}
-
-	r := p.recipesRepository.NewRecipePostgres(db)
-
-	recipes, err := r.RecipesAll()
-	if err != nil {
-		return nil, err
-	}
-	return recipes, nil
+	return r, nil
 }
 
 //RecipesAll()

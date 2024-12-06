@@ -23,7 +23,7 @@ import (
 // This service should implement the business logic for every endpoint for the RecipeAPI API.
 // Include any external packages or services that will be required by this service.
 type RecipesProcessor interface{
-	RecipesList() ([]*domain.Recipe, error)
+	RecipesList(ctx context.Context) ([]*domain.Recipe, error)
 }
 
 type RecipeAPIService struct {
