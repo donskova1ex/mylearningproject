@@ -9,6 +9,9 @@ import (
 //go:generate mockgen -destination=./mocks/ingredients_repository.go -package=mocks -mock_names=IngredientsRepository=IngredientsRepository . IngredientsRepository
 type IngredientsRepository interface {
 	IngredientsAll(ctx context.Context) ([]*domain.Ingredient, error)
+	IngredientByID(ctx context.Context, uuid string) (*domain.Ingredient, error)
+	DeleteIngredientByID(ctx context.Context, uuid string) error
+	UpdateIngredientByID(ctx context.Context, ingredient *domain.Ingredient) error
 }
 
 //go:generate mockgen -destination=./mocks/ingredients_logger.go -package=mocks -mock_names=IngredientsLogger=IngredientsLogger . IngredientsLogger
@@ -34,4 +37,27 @@ func (i *ingredients) IngredientsList(ctx context.Context) ([]*domain.Ingredient
 	}
 
 	return r, nil
+}
+
+func (i *ingredients) IngredientByID(ctx context.Context, uuid string) (*domain.Ingredient, error) {
+	ing, err := i.ingredientsRepository.IngredientByID(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+	return ing, nil
+}
+func (i *ingredients) DeleteIngredientByID(ctx context.Context, uuid string) error {
+	err := i.ingredientsRepository.DeleteIngredientByID(ctx, uuid)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (i *ingredients) UpdateIngredientByID(ctx context.Context, ingredient *domain.Ingredient) error {
+	err := i.ingredientsRepository.UpdateIngredientByID(ctx, ingredient)
+	if err != nil {
+		return err
+	}
+	return nil
 }

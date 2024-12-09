@@ -54,7 +54,7 @@ func (i *IngredientsPostgres) IngredientsAll(ctx context.Context) ([]*domain.Ing
 	return ingredients, nil
 }
 
-func (i *IngredientsPostgres) IngredientById(ctx context.Context, uuid string) (*domain.Ingredient, error) {
+func (i *IngredientsPostgres) IngredientByID(ctx context.Context, uuid string) (*domain.Ingredient, error) {
 	ingredient := &domain.Ingredient{}
 	query := "SELECT id, name, uuid FROM ingredients WHERE uuid = $1"
 	err := i.db.Get(ingredient, query, uuid)
