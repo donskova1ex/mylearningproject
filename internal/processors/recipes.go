@@ -30,10 +30,11 @@ func NewRecipe(recipesRepository RecipesRepository, log RecipesLogger) *recipes 
 	return &recipes{recipesRepository: recipesRepository, log: log}
 }
 
+// TODO: тестирование не забывать делать после методов
 func (rec *recipes) RecipesList(ctx context.Context) ([]*domain.Recipe, error) {
 	r, err := rec.recipesRepository.RecipesAll(ctx)
 	if err != nil {
-		rec.log.Error("recipes list getting error: %w", err) // так или не так
+		rec.log.Error("recipes list getting error: %w", err) // не так
 		return nil, fmt.Errorf("recipes list getting error: %w", err)
 	}
 	return r, nil
@@ -48,7 +49,7 @@ func (rec *recipes) CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*d
 	return r, nil
 }
 func (rec *recipes) RecipeByID(ctx context.Context, uuid string) (*domain.Recipe, error) {
-	r, err := rec.RecipeByID(ctx, uuid)
+	r, err := rec.recipesRepository.RecipeByID(ctx, uuid)
 	if err != nil {
 		rec.log.Error("recipe by ID getting error: %w", err)
 		return nil, err
@@ -67,7 +68,7 @@ func (rec *recipes) DeleteRecipeByID(ctx context.Context, uuid string) error {
 
 func (rec *recipes) UpdateRecipeByID(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
 
-	r, err := rec.UpdateRecipeByID(ctx, recipe)
+	r, err := rec.recipesRepository.UpdateRecipeByID(ctx, recipe)
 	if err != nil {
 		rec.log.Error("recipe by ID updating error: %w", err)
 		return nil, err

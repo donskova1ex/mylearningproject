@@ -2,6 +2,7 @@ package processors
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/donskova1ex/mylearningproject/internal/domain"
 )
@@ -43,6 +44,9 @@ func (i *ingredients) IngredientsList(ctx context.Context) ([]*domain.Ingredient
 func (i *ingredients) IngredientByID(ctx context.Context, uuid string) (*domain.Ingredient, error) {
 	ing, err := i.ingredientsRepository.IngredientByID(ctx, uuid)
 	if err != nil {
+		i.log.Error("unable to get ingredient by id",
+			slog.String("err", err.Error()),
+			slog.String("uuid", uuid)) //TODO:везде логировать
 		return nil, err
 	}
 	return ing, nil
