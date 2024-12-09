@@ -33,41 +33,6 @@ paths:
       summary: witches list
       tags:
       - witch
-  /witch:
-    get:
-      description: Returns a single witch
-      operationId: getWitch
-      parameters:
-      - description: ID of witch to return
-        explode: true
-        in: query
-        name: id
-        required: false
-        schema:
-          type: string
-        style: form
-      - description: Name of witch to return
-        explode: true
-        in: query
-        name: name
-        required: false
-        schema:
-          type: string
-        style: form
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/witch'
-          description: successful operation
-        "400":
-          description: Invalid ID supplied
-        "404":
-          description: Witch not found
-      summary: Find witch by parametrs
-      tags:
-      - witch
   /witch/{id}:
     delete:
       description: delete a witch
@@ -163,41 +128,6 @@ paths:
       summary: recipes list
       tags:
       - recipe
-  /recipe:
-    get:
-      description: Returns a single recipe
-      operationId: getRecipe
-      parameters:
-      - description: ID of recipe to return
-        explode: true
-        in: query
-        name: id
-        required: false
-        schema:
-          type: string
-        style: form
-      - description: Name of recipe to return
-        explode: true
-        in: query
-        name: name
-        required: false
-        schema:
-          type: string
-        style: form
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/recipe'
-          description: successful operation
-        "400":
-          description: Invalid ID supplied
-        "404":
-          description: Recipe not found
-      summary: Find recipe by paramets
-      tags:
-      - recipe
   /recipe/{id}:
     delete:
       description: Delete recipe
@@ -278,41 +208,6 @@ paths:
       summary: Update a recipe by id
       tags:
       - recipe
-  /ingredient:
-    get:
-      description: Ingredients by name
-      operationId: ingredientsByName
-      parameters:
-      - description: Ingredients by name
-        explode: true
-        in: query
-        name: name
-        required: false
-        schema:
-          type: string
-        style: form
-      - description: Ingredients by id
-        explode: true
-        in: query
-        name: id
-        required: false
-        schema:
-          type: string
-        style: form
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/ingredient'
-                type: array
-          description: successful operation
-        "204":
-          description: Empty array
-      summary: Ingredient by name
-      tags:
-      - ingredient
   /ingredients:
     get:
       description: Ingredients list
