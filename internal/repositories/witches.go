@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/donskova1ex/mylearningproject/internal/domain"
@@ -31,4 +33,54 @@ func (w *WitchesPostgres) CreateWitch(ctx context.Context, witch *domain.Witch) 
 		ID:   id,
 	}
 	return newWitch, nil
+}
+
+func (w *WitchesPostgres) WitchesAll(ctx context.Context) ([]*domain.Witch, error) {
+	witches := []*domain.Witch{}
+	rows, err := w.db.Queryx("SELECT uuid, id, name FROM witches")
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, fmt.Errorf("empty table: %w", err)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.StructScan(&witches)
+		if err != nil {
+			return nil, fmt.Errorf("unable to perform witches select: %w", err)
+		}
+
+	}
+
+	return witches, nil
+}
+
+func (w *WitchesPostgres) WitchByID(ctx context.Context, uuid string) (*domain.Witch, error) {
+	witch := &domain.Witch{}
+	query := "SELECT id, name, uuid FROM witches WHERE uuid = $1"
+	err := w.db.QueryRow(query, uuid).Scan(&witch)
+	if err != nil {
+		return witch, nil
+	}
+	return witch, fmt.Errorf("there is no object with this ID: %w", err)
+
+}
+
+func (w *WitchesPostgres) DeleteWitchByID(ctx context.Context, uuid string) error {
+	_, err := w.db.Exec("DELETE FROM witches WHERE uuid = $1", uuid)
+	if err != nil {
+		return fmt.Errorf("there is no object with this ID: %w", err)
+	}
+	return nil
+}
+
+func (w *WitchesPostgres) UpdateWitchByID(ctx context.Context, witch *domain.Witch) (*domain.Witch, error) {
+	query := "UPDATE witches SET name = $1 WHERE uuid = $2"
+	_, err := w.db.Exec(query, witch.Name, witch.UUID)
+	if err != nil {
+		return nil, fmt.Errorf("there is no object with this ID: %w", err)
+	}
+	return witch, nil
 }
