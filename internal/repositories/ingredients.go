@@ -32,7 +32,7 @@ func (i *IngredientsPostgres) CreateIngredient(ctx context.Context, ingredient *
 		UUID: newUUID,
 		ID:   id,
 	}
-	return newIngr, nil //TODO: возврат *domain.Ingredient
+	return newIngr, nil
 }
 
 func (i *IngredientsPostgres) IngredientsAll(ctx context.Context) ([]*domain.Ingredient, error) {

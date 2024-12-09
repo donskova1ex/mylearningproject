@@ -11,7 +11,8 @@ type IngredientsRepository interface {
 	IngredientsAll(ctx context.Context) ([]*domain.Ingredient, error)
 	IngredientByID(ctx context.Context, uuid string) (*domain.Ingredient, error)
 	DeleteIngredientByID(ctx context.Context, uuid string) error
-	UpdateIngredientByID(ctx context.Context, ingredient *domain.Ingredient) error
+	UpdateIngredientByID(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error)
+	CreateIngredient(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error)
 }
 
 //go:generate mockgen -destination=./mocks/ingredients_logger.go -package=mocks -mock_names=IngredientsLogger=IngredientsLogger . IngredientsLogger
@@ -54,10 +55,20 @@ func (i *ingredients) DeleteIngredientByID(ctx context.Context, uuid string) err
 	return nil
 }
 
-func (i *ingredients) UpdateIngredientByID(ctx context.Context, ingredient *domain.Ingredient) error {
-	err := i.ingredientsRepository.UpdateIngredientByID(ctx, ingredient)
+func (i *ingredients) UpdateIngredientByID(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error) {
+	ing, err := i.ingredientsRepository.UpdateIngredientByID(ctx, ingredient)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return ing, nil
+}
+
+func (i *ingredients) CreateIngredient(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error) {
+	ing, err := i.CreateIngredient(ctx, ingredient)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ing, nil
 }
