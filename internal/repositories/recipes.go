@@ -57,3 +57,30 @@ func (r *RecipesPostgres) RecipesAll(ctx context.Context) ([]*domain.Recipe, err
 	}
 	return recipes, nil
 }
+
+func (r *RecipesPostgres) RecipeByID(ctx context.Context, uuid string) (*domain.Recipe, error) {
+	recipe := &domain.Recipe{}
+	query := "SELECT uuid, id, name, brew_time_seconds FROM recipes WHERE uuid = $1"
+	row := r.db.QueryRow(query, uuid).Scan(&recipe)
+	if row != nil {
+		return recipe, nil
+	}
+	return nil, errors.New("recipe not found")
+}
+
+func (r *RecipesPostgres) DeleteRecipeByID(ctx context.Context, uuid string) error {
+	_, err := r.db.Exec("DELETE FROM recipes WHERE uuid = $1", uuid)
+	if errors.Is(err, sql.ErrNoRows) {
+		return fmt.Errorf("recipe not found: %w", err)
+	}
+	return nil
+}
+
+func (r *RecipesPostgres) UpdateRecipeByID(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
+	query := "UPDATE recipes SET name = $1, brew_time_seconds = $2 WHERE uuid = $3"
+	_, err := r.db.Exec(query, recipe.Name, recipe.BrewTimeSeconds, recipe.UUID)
+	if err != nil {
+		return nil, fmt.Errorf("there is no object with this ID: %w", err)
+	}
+	return recipe, nil
+}

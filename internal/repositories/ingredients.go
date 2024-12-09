@@ -57,11 +57,11 @@ func (i *IngredientsPostgres) IngredientsAll(ctx context.Context) ([]*domain.Ing
 func (i *IngredientsPostgres) IngredientByID(ctx context.Context, uuid string) (*domain.Ingredient, error) {
 	ingredient := &domain.Ingredient{}
 	query := "SELECT id, name, uuid FROM ingredients WHERE uuid = $1"
-	err := i.db.Get(ingredient, query, uuid)
+	err := i.db.QueryRow(query, uuid).Scan(&ingredient)
 	if err != nil {
-		return nil, fmt.Errorf("there is no object with this ID: %w", err)
+		return ingredient, nil
 	}
-	return ingredient, nil
+	return ingredient, fmt.Errorf("there is no object with this ID: %w", err)
 }
 
 func (i *IngredientsPostgres) DeleteIngredientByID(ctx context.Context, uuid string) error {
@@ -73,11 +73,11 @@ func (i *IngredientsPostgres) DeleteIngredientByID(ctx context.Context, uuid str
 	return nil
 }
 
-func (i *IngredientsPostgres) UpdateIngredientByID(ctx context.Context, ingredient *domain.Ingredient) error {
+func (i *IngredientsPostgres) UpdateIngredientByID(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error) {
 	query := "UPDATE ingredients SET name = $1 WHERE uuid = $2"
 	_, err := i.db.Exec(query, ingredient.Name, ingredient.UUID)
 	if err != nil {
-		return fmt.Errorf("there is no object with this ID: %w", err)
+		return nil, fmt.Errorf("there is no object with this ID: %w", err)
 	}
-	return nil
+	return ingredient, nil
 }
