@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 --SELECT 'up SQL query';
 CREATE TABLE IF NOT EXISTS ingredients (
-  uuid VARCHAR(36),
+  uuid VARCHAR(36) unique,
   id SERIAL PRIMARY KEY, 
   name VARCHAR(64));
 -- +goose StatementEnd

@@ -25,6 +25,7 @@ func (i *IngredientsPostgres) CreateIngredient(ctx context.Context, ingredient *
 	newUUID := uuid.NewString()
 	row := i.db.QueryRow(query, ingredient.Name, newUUID)
 	if err := row.Scan(&id); err != nil {
+
 		return nil, fmt.Errorf("impossible to create an entity: %w", err) //TODO: обертка ошибок через fmt.Errorf
 	}
 	newIngr := &domain.Ingredient{
