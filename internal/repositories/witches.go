@@ -80,7 +80,7 @@ func (w *Witches) WitchByUUID(ctx context.Context, uuid string) (*domain.Witch, 
 
 }
 
-func (w *Witches) DeleteWitchByID(ctx context.Context, uuid string) error {
+func (w *Witches) DeleteWitchByUUID(ctx context.Context, uuid string) error {
 	_, err := w.db.Exec("DELETE FROM witches WHERE uuid = $1", uuid)
 	if err != nil {
 		return fmt.Errorf("can not delete witch with this ID: %w", err)

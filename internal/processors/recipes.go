@@ -11,9 +11,9 @@ import (
 type RecipesRepository interface {
 	RecipesAll(ctx context.Context) ([]*domain.Recipe, error)
 	CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error)
-	RecipeByID(ctx context.Context, uuid string) (*domain.Recipe, error)
-	DeleteRecipeByID(ctx context.Context, uuid string) error
-	UpdateRecipeByID(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error)
+	RecipeByUUID(ctx context.Context, uuid string) (*domain.Recipe, error)
+	DeleteRecipeByUUID(ctx context.Context, uuid string) error
+	UpdateRecipeByUUID(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error)
 }
 
 type RecipesLogger interface {
@@ -49,7 +49,7 @@ func (rec *recipes) CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*d
 	return r, nil
 }
 func (rec *recipes) RecipeByID(ctx context.Context, uuid string) (*domain.Recipe, error) {
-	r, err := rec.recipesRepository.RecipeByID(ctx, uuid)
+	r, err := rec.recipesRepository.RecipeByUUID(ctx, uuid)
 	if err != nil {
 		rec.log.Error("recipe by ID getting error: %w", err)
 		return nil, err
@@ -58,7 +58,7 @@ func (rec *recipes) RecipeByID(ctx context.Context, uuid string) (*domain.Recipe
 }
 
 func (rec *recipes) DeleteRecipeByID(ctx context.Context, uuid string) error {
-	err := rec.recipesRepository.DeleteRecipeByID(ctx, uuid)
+	err := rec.recipesRepository.DeleteRecipeByUUID(ctx, uuid)
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func (rec *recipes) DeleteRecipeByID(ctx context.Context, uuid string) error {
 
 func (rec *recipes) UpdateRecipeByID(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
 
-	r, err := rec.recipesRepository.UpdateRecipeByID(ctx, recipe)
+	r, err := rec.recipesRepository.UpdateRecipeByUUID(ctx, recipe)
 	if err != nil {
 		rec.log.Error("recipe by ID updating error: %w", err)
 		return nil, err

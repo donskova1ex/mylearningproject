@@ -58,7 +58,7 @@ func (i *IngredientsPostgres) IngredientsAll(ctx context.Context) ([]*domain.Ing
 	return ingredients, nil
 }
 
-func (i *IngredientsPostgres) IngredientByID(ctx context.Context, uuid string) (*domain.Ingredient, error) {
+func (i *IngredientsPostgres) IngredientByUUID(ctx context.Context, uuid string) (*domain.Ingredient, error) {
 	ingredient := &domain.Ingredient{}
 	query := "SELECT id, name, uuid FROM ingredients WHERE uuid = $1"
 	row := i.db.QueryRow(query, uuid)
@@ -75,7 +75,7 @@ func (i *IngredientsPostgres) IngredientByID(ctx context.Context, uuid string) (
 	return ingredient, nil
 }
 
-func (i *IngredientsPostgres) DeleteIngredientByID(ctx context.Context, uuid string) error {
+func (i *IngredientsPostgres) DeleteIngredientByUUID(ctx context.Context, uuid string) error {
 	_, err := i.db.Exec("DELETE FROM ingredients WHERE uuid = $1", uuid)
 
 	if err != nil {
@@ -84,7 +84,7 @@ func (i *IngredientsPostgres) DeleteIngredientByID(ctx context.Context, uuid str
 	return nil
 }
 
-func (i *IngredientsPostgres) UpdateIngredientByID(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error) {
+func (i *IngredientsPostgres) UpdateIngredientByUUID(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error) {
 	query := "UPDATE ingredients SET name = $1 WHERE uuid = $2"
 	_, err := i.db.Exec(query, ingredient.Name, ingredient.UUID)
 	if err != nil {

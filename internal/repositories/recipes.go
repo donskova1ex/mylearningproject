@@ -62,7 +62,7 @@ func (r *RecipesPostgres) RecipesAll(ctx context.Context) ([]*domain.Recipe, err
 	return recipes, nil
 }
 
-func (r *RecipesPostgres) RecipeByID(ctx context.Context, uuid string) (*domain.Recipe, error) {
+func (r *RecipesPostgres) RecipeByUUID(ctx context.Context, uuid string) (*domain.Recipe, error) {
 	recipe := &domain.Recipe{}
 	query := "SELECT uuid, id, name, brew_time_seconds FROM recipes WHERE uuid = $1"
 	row := r.db.QueryRow(query, uuid)
@@ -79,7 +79,7 @@ func (r *RecipesPostgres) RecipeByID(ctx context.Context, uuid string) (*domain.
 	return recipe, nil
 }
 
-func (r *RecipesPostgres) DeleteRecipeByID(ctx context.Context, uuid string) error {
+func (r *RecipesPostgres) DeleteRecipeByUUID(ctx context.Context, uuid string) error {
 	_, err := r.db.Exec("DELETE FROM recipes WHERE uuid = $1", uuid)
 	if errors.Is(err, sql.ErrNoRows) {
 		return fmt.Errorf("recipe not found: %w", err)
@@ -87,7 +87,7 @@ func (r *RecipesPostgres) DeleteRecipeByID(ctx context.Context, uuid string) err
 	return nil
 }
 
-func (r *RecipesPostgres) UpdateRecipeByID(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
+func (r *RecipesPostgres) UpdateRecipeByUUID(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
 	query := "UPDATE recipes SET name = $1, brew_time_seconds = $2 WHERE uuid = $3"
 	_, err := r.db.Exec(query, recipe.Name, recipe.BrewTimeSeconds, recipe.UUID)
 	if err != nil {

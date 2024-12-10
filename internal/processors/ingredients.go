@@ -10,9 +10,9 @@ import (
 //go:generate mockgen -destination=./mocks/ingredients_repository.go -package=mocks -mock_names=IngredientsRepository=IngredientsRepository . IngredientsRepository
 type IngredientsRepository interface {
 	IngredientsAll(ctx context.Context) ([]*domain.Ingredient, error)
-	IngredientByID(ctx context.Context, uuid string) (*domain.Ingredient, error)
-	DeleteIngredientByID(ctx context.Context, uuid string) error
-	UpdateIngredientByID(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error)
+	IngredientByUUID(ctx context.Context, uuid string) (*domain.Ingredient, error)
+	DeleteIngredientByUUID(ctx context.Context, uuid string) error
+	UpdateIngredientByUUID(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error)
 	CreateIngredient(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error)
 }
 
@@ -42,7 +42,7 @@ func (i *ingredients) IngredientsList(ctx context.Context) ([]*domain.Ingredient
 }
 
 func (i *ingredients) IngredientByID(ctx context.Context, uuid string) (*domain.Ingredient, error) {
-	ing, err := i.ingredientsRepository.IngredientByID(ctx, uuid)
+	ing, err := i.ingredientsRepository.IngredientByUUID(ctx, uuid)
 	if err != nil {
 		i.log.Error("unable to get ingredient by id",
 			slog.String("err", err.Error()),
@@ -52,7 +52,7 @@ func (i *ingredients) IngredientByID(ctx context.Context, uuid string) (*domain.
 	return ing, nil
 }
 func (i *ingredients) DeleteIngredientByID(ctx context.Context, uuid string) error {
-	err := i.ingredientsRepository.DeleteIngredientByID(ctx, uuid)
+	err := i.ingredientsRepository.DeleteIngredientByUUID(ctx, uuid)
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func (i *ingredients) DeleteIngredientByID(ctx context.Context, uuid string) err
 }
 
 func (i *ingredients) UpdateIngredientByID(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error) {
-	ing, err := i.ingredientsRepository.UpdateIngredientByID(ctx, ingredient)
+	ing, err := i.ingredientsRepository.UpdateIngredientByUUID(ctx, ingredient)
 	if err != nil {
 		return nil, err
 	}
