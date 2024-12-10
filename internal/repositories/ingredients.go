@@ -24,8 +24,11 @@ func (i *IngredientsPostgres) CreateIngredient(ctx context.Context, ingredient *
 	query := "INSERT INTO ingredients (name, uuid) values ($1, $2) RETURNING id"
 	newUUID := uuid.NewString()
 	row := i.db.QueryRow(query, ingredient.Name, newUUID)
+	err := row.Err()
+	if err != nil {
+		return nil, fmt.Errorf("can not read ingredient from db: %w", err)
+	}
 	if err := row.Scan(&id); err != nil {
-
 		return nil, fmt.Errorf("impossible to create an entity: %w", err) //TODO: обертка ошибок через fmt.Errorf
 	}
 	newIngr := &domain.Ingredient{
@@ -58,11 +61,18 @@ func (i *IngredientsPostgres) IngredientsAll(ctx context.Context) ([]*domain.Ing
 func (i *IngredientsPostgres) IngredientByID(ctx context.Context, uuid string) (*domain.Ingredient, error) {
 	ingredient := &domain.Ingredient{}
 	query := "SELECT id, name, uuid FROM ingredients WHERE uuid = $1"
-	err := i.db.QueryRow(query, uuid).Scan(&ingredient)
-	if err != nil {
-		return ingredient, nil
+	row := i.db.QueryRow(query, uuid)
+	if errors.Is(row.Err(), sql.ErrNoRows) {
+		return nil, fmt.Errorf("ingredient with UUID: %s not found: %w", uuid, row.Err())
 	}
-	return ingredient, fmt.Errorf("there is no object with this ID: %w", err)
+	if row.Err() != nil {
+		return nil, fmt.Errorf("can not read ingredient from db: %w", row.Err())
+	}
+	err := row.Scan(&ingredient)
+	if err != nil {
+		return nil, fmt.Errorf("can not create struct ingredient from db: %w", err)
+	}
+	return ingredient, nil
 }
 
 func (i *IngredientsPostgres) DeleteIngredientByID(ctx context.Context, uuid string) error {

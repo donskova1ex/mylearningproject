@@ -24,8 +24,12 @@ func (r *RecipesPostgres) CreateRecipe(ctx context.Context, recipe *domain.Recip
 	query := "INSERT INTO recipes (uuid, Name, BrewTimeSeconds) values ($1, $2, $3)RETURNING id"
 	newUUID := uuid.NewString()
 	row := r.db.QueryRow(query, newUUID, recipe.Name, recipe.BrewTimeSeconds)
+	err := row.Err()
+	if err != nil {
+		return nil, fmt.Errorf("can not read recipe from db: %w", err)
+	}
 	if err := row.Scan(&id); err != nil {
-		return nil, fmt.Errorf("impossible to create an entity: %w", err)
+		return nil, fmt.Errorf("can not scan recipe for id: %w", err)
 	}
 
 	newRecipe := &domain.Recipe{
@@ -61,11 +65,18 @@ func (r *RecipesPostgres) RecipesAll(ctx context.Context) ([]*domain.Recipe, err
 func (r *RecipesPostgres) RecipeByID(ctx context.Context, uuid string) (*domain.Recipe, error) {
 	recipe := &domain.Recipe{}
 	query := "SELECT uuid, id, name, brew_time_seconds FROM recipes WHERE uuid = $1"
-	row := r.db.QueryRow(query, uuid).Scan(&recipe)
-	if row != nil {
-		return recipe, nil
+	row := r.db.QueryRow(query, uuid)
+	if errors.Is(row.Err(), sql.ErrNoRows) {
+		return nil, fmt.Errorf("recipe with UUID: %s not found: %w", uuid, row.Err())
 	}
-	return nil, errors.New("recipe not found")
+	if row.Err() != nil {
+		return nil, fmt.Errorf("can not read recipe from db: %w", row.Err())
+	}
+	err := row.Scan(&recipe)
+	if err != nil {
+		return nil, fmt.Errorf("can not create struct recipe from db: %w", err)
+	}
+	return recipe, nil
 }
 
 func (r *RecipesPostgres) DeleteRecipeByID(ctx context.Context, uuid string) error {
