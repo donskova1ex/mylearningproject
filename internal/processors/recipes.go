@@ -2,7 +2,6 @@ package processors
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 
@@ -31,8 +30,7 @@ func NewRecipe(recipesRepository RecipesRepository, log RecipesLogger) *recipes 
 	return &recipes{recipesRepository: recipesRepository, log: log}
 }
 
-// TODO: тестирование не забывать делать после методов
-func (rec *recipes) RecipesList(ctx context.Context) ([]*domain.Recipe, error) {
+func (rec *recipes) RecipesList(ctx context.Context) ([]*domain.Recipe, error) { // TODO: тестирование не забывать делать после методов
 	r, err := rec.recipesRepository.RecipesAll(ctx)
 	if err != nil {
 		rec.log.Error("it is impossible to get a recipes list",
@@ -45,7 +43,8 @@ func (rec *recipes) RecipesList(ctx context.Context) ([]*domain.Recipe, error) {
 func (rec *recipes) CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
 	r, err := rec.recipesRepository.CreateRecipe(ctx, recipe)
 	if err != nil {
-		rec.log.Error("unable ")
+		rec.log.Error("unable to create recipe",
+			slog.String("err", err.Error()))
 		return nil, fmt.Errorf("create recipe error: %w", err)
 	}
 	return r, nil
@@ -53,7 +52,9 @@ func (rec *recipes) CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*d
 func (rec *recipes) RecipeByID(ctx context.Context, uuid string) (*domain.Recipe, error) {
 	r, err := rec.recipesRepository.RecipeByUUID(ctx, uuid)
 	if err != nil {
-		rec.log.Error("recipe by ID getting error: %w", err)
+		rec.log.Error("unable to get recipe by uuid",
+			slog.String("err", err.Error()),
+			slog.String("uuid", uuid))
 		return nil, err
 	}
 	return r, nil
@@ -64,7 +65,9 @@ func (rec *recipes) DeleteRecipeByID(ctx context.Context, uuid string) error {
 	if err != nil {
 		return err
 	}
-	rec.log.Error("recipe by ID deleting error", errors.New("deleting by ID error"))
+	rec.log.Error("unable to delete recipe by uuid",
+		slog.String("err", err.Error()),
+		slog.String("uuid", uuid))
 	return nil
 }
 
@@ -72,7 +75,8 @@ func (rec *recipes) UpdateRecipeByID(ctx context.Context, recipe *domain.Recipe)
 
 	r, err := rec.recipesRepository.UpdateRecipeByUUID(ctx, recipe)
 	if err != nil {
-		rec.log.Error("recipe by ID updating error: %w", err)
+		rec.log.Error("unable to update recipe",
+			slog.String("err", err.Error()))
 		return nil, err
 	}
 	return r, err

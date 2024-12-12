@@ -3,6 +3,7 @@ package processors
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/donskova1ex/mylearningproject/internal/domain"
 )
@@ -32,7 +33,7 @@ func NewWitch(witchesRepository WitchesRepository, log WitchesLogger) *witches {
 func (wtch *witches) WitchesList(ctx context.Context) ([]*domain.Witch, error) {
 	w, err := wtch.witchesRepository.WitchesAll(ctx)
 	if err != nil {
-		wtch.log.Error("witches list processor error")
+		wtch.log.Error("it is impossible to get a witches list", slog.String("err", err.Error()))
 		return nil, fmt.Errorf("witches list processor error: %w", err)
 	}
 	return w, nil
@@ -41,6 +42,9 @@ func (wtch *witches) WitchesList(ctx context.Context) ([]*domain.Witch, error) {
 func (wtch *witches) WitchByID(ctx context.Context, uuid string) (*domain.Witch, error) {
 	w, err := wtch.witchesRepository.WitchByUUID(ctx, uuid)
 	if err != nil {
+		wtch.log.Error("unable to get witch by uuid",
+			slog.String("err", err.Error()),
+			slog.String("uuid", uuid))
 		return nil, err
 	}
 	return w, nil
@@ -48,6 +52,9 @@ func (wtch *witches) WitchByID(ctx context.Context, uuid string) (*domain.Witch,
 func (wtch *witches) DeleteWitchByID(ctx context.Context, uuid string) error {
 	err := wtch.witchesRepository.DeleteWitchByUUID(ctx, uuid)
 	if err != nil {
+		wtch.log.Error("unable to delete witch by uuid",
+			slog.String("err", err.Error()),
+			slog.String("uuid", uuid))
 		return err
 	}
 	return nil
@@ -56,15 +63,18 @@ func (wtch *witches) DeleteWitchByID(ctx context.Context, uuid string) error {
 func (wtch *witches) UpdateWitchByID(ctx context.Context, witch *domain.Witch) (*domain.Witch, error) {
 	w, err := wtch.witchesRepository.UpdateWitchByUUID(ctx, witch)
 	if err != nil {
+		wtch.log.Error("unable to update witch by uuid")
 		return nil, err
 	}
 	return w, nil
 }
 
 func (wtch *witches) CreateWitch(ctx context.Context, witch *domain.Witch) (*domain.Witch, error) {
-	w, err := wtch.CreateWitch(ctx, witch)
+	w, err := wtch.witchesRepository.CreateWitch(ctx, witch)
 
 	if err != nil {
+		wtch.log.Error("unable to create witch",
+			slog.String("err", err.Error()))
 		return nil, err
 	}
 
