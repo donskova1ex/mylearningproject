@@ -37,7 +37,7 @@ func connectString(cfg Config) string {
 		Scheme: "postgres",
 		Host:   cfg.Host + ":" + cfg.Port,
 		Path:   "/" + cfg.DBName,
-		User:   url.UserPassword(cfg.Username, cfg.Password),
+		User:   url.UserPassword("dev", "dev1234"),
 	}
 	rawQuery := make(url.Values)
 	rawQuery.Set("ssl_mode", "disable")
