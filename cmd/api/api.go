@@ -29,12 +29,14 @@ func main() {
 	IngredientAPIService := openapi.NewIngredientAPIService(ingProcessor, logger)
 	IngredientAPIController := openapi.NewIngredientAPIController(IngredientAPIService)
 
-	recipeReposirory := repositories.NewRecipePostgres(db)
-	recipeProcessor := processors.NewRecipe(recipeReposirory, logger)
+	recipeRepository := repositories.NewRecipePostgres(db)
+	recipeProcessor := processors.NewRecipe(recipeRepository, logger)
 	RecipeAPIService := openapi.NewRecipeAPIService(recipeProcessor, logger)
 	RecipeAPIController := openapi.NewRecipeAPIController(RecipeAPIService)
 
-	WitchAPIService := openapi.NewWitchAPIService()
+	witchRepository := repositories.NewWitchesPostgres(db)
+	witchProcessor := processors.NewWitch(witchRepository, logger)
+	WitchAPIService := openapi.NewWitchAPIService(witchProcessor, logger)
 	WitchAPIController := openapi.NewWitchAPIController(WitchAPIService)
 
 	router := openapi.NewRouter(IngredientAPIController, RecipeAPIController, WitchAPIController)

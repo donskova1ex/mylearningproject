@@ -11,15 +11,15 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type Witches struct {
+type WitchesPostgres struct {
 	db *sqlx.DB
 }
 
-func NewWitches(db *sqlx.DB) *Witches {
-	return &Witches{db: db}
+func NewWitchesPostgres(db *sqlx.DB) *WitchesPostgres {
+	return &WitchesPostgres{db: db}
 }
 
-func (w *Witches) CreateWitch(ctx context.Context, witch *domain.Witch) (*domain.Witch, error) {
+func (w *WitchesPostgres) CreateWitch(ctx context.Context, witch *domain.Witch) (*domain.Witch, error) {
 	var id uint32
 	query := "INSERT INTO witches (uuid, name) values ($1, $2) RETURNING id" //TODO: обратботка на уникальный UUID во всех таблицах
 	newUUID := uuid.NewString()
@@ -39,7 +39,7 @@ func (w *Witches) CreateWitch(ctx context.Context, witch *domain.Witch) (*domain
 	return newWitch, nil
 }
 
-func (w *Witches) WitchesAll(ctx context.Context) ([]*domain.Witch, error) {
+func (w *WitchesPostgres) WitchesAll(ctx context.Context) ([]*domain.Witch, error) {
 	witches := []*domain.Witch{}
 	rows, err := w.db.Queryx("SELECT uuid, id, name FROM witches")
 	if errors.Is(err, sql.ErrNoRows) {
@@ -61,7 +61,7 @@ func (w *Witches) WitchesAll(ctx context.Context) ([]*domain.Witch, error) {
 	return witches, nil
 }
 
-func (w *Witches) WitchByUUID(ctx context.Context, uuid string) (*domain.Witch, error) {
+func (w *WitchesPostgres) WitchByUUID(ctx context.Context, uuid string) (*domain.Witch, error) {
 	witch := &domain.Witch{}
 	query := "SELECT id, name, uuid FROM witches WHERE uuid = $1"
 	row := w.db.QueryRow(query, uuid) // TODO: поправить в остальных модулях
@@ -80,7 +80,7 @@ func (w *Witches) WitchByUUID(ctx context.Context, uuid string) (*domain.Witch, 
 
 }
 
-func (w *Witches) DeleteWitchByUUID(ctx context.Context, uuid string) error {
+func (w *WitchesPostgres) DeleteWitchByUUID(ctx context.Context, uuid string) error {
 	_, err := w.db.Exec("DELETE FROM witches WHERE uuid = $1", uuid)
 	if err != nil {
 		return fmt.Errorf("can not delete witch with this ID: %w", err)
@@ -88,7 +88,7 @@ func (w *Witches) DeleteWitchByUUID(ctx context.Context, uuid string) error {
 	return nil
 }
 
-func (w *Witches) UpdateWitchByUUID(ctx context.Context, witch *domain.Witch) (*domain.Witch, error) {
+func (w *WitchesPostgres) UpdateWitchByUUID(ctx context.Context, witch *domain.Witch) (*domain.Witch, error) {
 	query := "UPDATE witches SET name = $1 WHERE uuid = $2"
 	_, err := w.db.Exec(query, witch.Name, witch.UUID)
 	if err != nil {

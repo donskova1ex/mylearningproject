@@ -31,12 +31,13 @@ func NewWitch(witchesRepository WitchesRepository, log WitchesLogger) *witches {
 }
 
 func (wtch *witches) WitchesList(ctx context.Context) ([]*domain.Witch, error) {
-	w, err := wtch.witchesRepository.WitchesAll(ctx)
+	r, err := wtch.witchesRepository.WitchesAll(ctx)
 	if err != nil {
-		wtch.log.Error("it is impossible to get a witches list", slog.String("err", err.Error()))
-		return nil, fmt.Errorf("witches list processor error: %w", err)
+		wtch.log.Error("it is impossible to get a witches list",
+			slog.String("err", err.Error()))
+		return nil, fmt.Errorf("recipes list getting error: %w", err)
 	}
-	return w, nil
+	return r, nil
 }
 
 func (wtch *witches) WitchByID(ctx context.Context, uuid string) (*domain.Witch, error) {
