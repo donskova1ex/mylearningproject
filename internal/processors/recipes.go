@@ -46,7 +46,7 @@ func (rec *recipes) CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*d
 	if err != nil {
 		rec.log.Error("unable to create recipe",
 			slog.String("err", err.Error()))
-		return nil, fmt.Errorf("create recipe error: %w", err)
+		return nil, fmt.Errorf("can not create recipe: %s, error: %w", recipe.Name, err)
 	}
 	return r, nil
 }
@@ -56,7 +56,7 @@ func (rec *recipes) RecipeByID(ctx context.Context, uuid string) (*domain.Recipe
 		rec.log.Error("unable to get recipe by uuid",
 			slog.String("err", err.Error()),
 			slog.String("uuid", uuid))
-		return nil, err
+		return nil, fmt.Errorf("can not get recipe by uuid: %s, error: %w", uuid, err)
 	}
 	return r, nil
 }
@@ -64,7 +64,7 @@ func (rec *recipes) RecipeByID(ctx context.Context, uuid string) (*domain.Recipe
 func (rec *recipes) DeleteRecipeByID(ctx context.Context, uuid string) error {
 	err := rec.recipesRepository.DeleteRecipeByUUID(ctx, uuid)
 	if err != nil {
-		return err
+		return fmt.Errorf("can not delete recipe by uuid: %s, error: %w", uuid, err)
 	}
 	rec.log.Error("unable to delete recipe by uuid",
 		slog.String("err", err.Error()),
@@ -78,7 +78,7 @@ func (rec *recipes) UpdateRecipeByID(ctx context.Context, recipe *domain.Recipe)
 	if err != nil {
 		rec.log.Error("unable to update recipe",
 			slog.String("err", err.Error()))
-		return nil, err
+		return nil, fmt.Errorf("can not update recipe: %s, error: %w", recipe.Name, err)
 	}
-	return r, err
+	return r, nil
 }

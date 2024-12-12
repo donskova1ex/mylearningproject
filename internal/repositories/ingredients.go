@@ -59,7 +59,7 @@ func (i *IngredientsPostgres) IngredientsAll(ctx context.Context) ([]*domain.Ing
 		return nil, fmt.Errorf("empty table: %w", err)
 	}
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can not read rows: %w", err)
 	}
 	defer rows.Close()
 	for rows.Next() {

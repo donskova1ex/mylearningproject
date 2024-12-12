@@ -46,7 +46,7 @@ func (wtch *witches) WitchByID(ctx context.Context, uuid string) (*domain.Witch,
 		wtch.log.Error("unable to get witch by uuid",
 			slog.String("err", err.Error()),
 			slog.String("uuid", uuid))
-		return nil, err
+		return nil, fmt.Errorf("unable to get witch by uuid: %s, error: %w", uuid, err)
 	}
 	return w, nil
 }
@@ -56,7 +56,7 @@ func (wtch *witches) DeleteWitchByID(ctx context.Context, uuid string) error {
 		wtch.log.Error("unable to delete witch by uuid",
 			slog.String("err", err.Error()),
 			slog.String("uuid", uuid))
-		return err
+		return fmt.Errorf("unable to delete witch by uuid: %s, error: %w", uuid, err)
 	}
 	return nil
 }
@@ -65,7 +65,7 @@ func (wtch *witches) UpdateWitchByID(ctx context.Context, witch *domain.Witch) (
 	w, err := wtch.witchesRepository.UpdateWitchByUUID(ctx, witch)
 	if err != nil {
 		wtch.log.Error("unable to update witch by uuid")
-		return nil, err
+		return nil, fmt.Errorf("unable to update witch by uuid: %s, error: %w", witch.Name, err)
 	}
 	return w, nil
 }
@@ -76,7 +76,7 @@ func (wtch *witches) CreateWitch(ctx context.Context, witch *domain.Witch) (*dom
 	if err != nil {
 		wtch.log.Error("unable to create witch",
 			slog.String("err", err.Error()))
-		return nil, err
+		return nil, fmt.Errorf("unable to create witch: %s, error: %w", witch.Name, err)
 	}
 
 	return w, nil

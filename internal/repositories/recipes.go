@@ -61,7 +61,7 @@ func (r *RecipesPostgres) RecipesAll(ctx context.Context) ([]*domain.Recipe, err
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can not read rows: %w", err)
 	}
 	defer rows.Close()
 	for rows.Next() {

@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"net/url"
 
 	"github.com/jmoiron/sqlx"
@@ -19,12 +20,12 @@ func NewPostgresDB(cfg Config) (*sqlx.DB, error) {
 	db, err := sqlx.Open("postgres", connectString(cfg))
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open connection to postgres: %w", err)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to ping postgres: %w", err)
 	}
 
 	return db, nil

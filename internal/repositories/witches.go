@@ -24,7 +24,7 @@ func (w *WitchesPostgres) CreateWitch(ctx context.Context, witch *domain.Witch) 
 	var newUUID string
 	var uuidNotUsed = false
 
-	query := "INSERT INTO witches (uuid, name) values ($1, $2) RETURNING id" //TODO: обратботка на уникальный UUID во всех таблицах
+	query := "INSERT INTO witches (uuid, name) values ($1, $2) RETURNING id"
 
 	for uuidNotUsed != true {
 		newUUID = uuid.NewString()
@@ -59,7 +59,7 @@ func (w *WitchesPostgres) WitchesAll(ctx context.Context) ([]*domain.Witch, erro
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can not read rows: %w", err)
 	}
 	defer rows.Close()
 	for rows.Next() {

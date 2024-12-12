@@ -2,6 +2,7 @@ package processors
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	"github.com/donskova1ex/mylearningproject/internal/domain"
@@ -17,7 +18,7 @@ type IngredientsRepository interface {
 }
 
 //go:generate mockgen -destination=./mocks/ingredients_logger.go -package=mocks -mock_names=IngredientsLogger=IngredientsLogger . IngredientsLogger
-type IngredientsLogger interface { //TODO: добавить во все
+type IngredientsLogger interface {
 	Error(msg string, args ...any)
 	Info(msg string, args ...any)
 }
@@ -36,7 +37,7 @@ func (i *ingredients) IngredientsList(ctx context.Context) ([]*domain.Ingredient
 	r, err := i.ingredientsRepository.IngredientsAll(ctx)
 	if err != nil {
 		i.log.Error("it is impossible to get a ingredients list", slog.String("err", err.Error()))
-		return nil, err
+		return nil, fmt.Errorf("it is impossible to get a ingredients list")
 	}
 
 	return r, nil
@@ -47,8 +48,8 @@ func (i *ingredients) IngredientByID(ctx context.Context, uuid string) (*domain.
 	if err != nil {
 		i.log.Error("unable to get ingredient by uuid",
 			slog.String("err", err.Error()),
-			slog.String("uuid", uuid)) //TODO:везде логировать
-		return nil, err
+			slog.String("uuid", uuid))
+		return nil, fmt.Errorf("unable to get ingredient by uuid: %s, error: %w", uuid, err)
 	}
 	return ing, nil
 }
@@ -58,7 +59,7 @@ func (i *ingredients) DeleteIngredientByID(ctx context.Context, uuid string) err
 		i.log.Error("unable to delete ingredient by uuid",
 			slog.String("err", err.Error()),
 			slog.String("uuid", uuid))
-		return err
+		return fmt.Errorf("unable to delete ingredient by uuid: %s, error: %w", uuid, err)
 	}
 	return nil
 }
@@ -67,7 +68,7 @@ func (i *ingredients) UpdateIngredientByID(ctx context.Context, ingredient *doma
 	ing, err := i.ingredientsRepository.UpdateIngredientByUUID(ctx, ingredient)
 	if err != nil {
 		i.log.Error("unable to update ingredient by uuid")
-		return nil, err
+		return nil, fmt.Errorf("unable to update ingredient by uuid: %s, error: %w", ingredient.UUID, err)
 	}
 	return ing, nil
 }
@@ -78,7 +79,7 @@ func (i *ingredients) CreateIngredient(ctx context.Context, ingredient *domain.I
 	if err != nil {
 		i.log.Error("unable to create ingredient",
 			slog.String("err", err.Error()))
-		return nil, err
+		return nil, fmt.Errorf("unable to create ingredient: %s, error: %w", ingredient.Name, err)
 	}
 
 	return ing, nil
