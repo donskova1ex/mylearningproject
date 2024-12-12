@@ -30,7 +30,8 @@ func NewRecipe(recipesRepository RecipesRepository, log RecipesLogger) *recipes 
 	return &recipes{recipesRepository: recipesRepository, log: log}
 }
 
-func (rec *recipes) RecipesList(ctx context.Context) ([]*domain.Recipe, error) { // TODO: тестирование не забывать делать после методов
+// TODO: тестирование не забывать делать после методов
+func (rec *recipes) RecipesList(ctx context.Context) ([]*domain.Recipe, error) {
 	r, err := rec.recipesRepository.RecipesAll(ctx)
 	if err != nil {
 		rec.log.Error("it is impossible to get a recipes list",
