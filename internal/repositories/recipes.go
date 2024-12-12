@@ -21,8 +21,19 @@ func NewRecipePostgres(db *sqlx.DB) *RecipesPostgres {
 
 func (r *RecipesPostgres) CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
 	var id uint32
+	var newUUID string
+	var uuidNotUsed = false
+
 	query := "INSERT INTO recipes (uuid, Name, BrewTimeSeconds) values ($1, $2, $3)RETURNING id"
-	newUUID := uuid.NewString()
+
+	for uuidNotUsed != true {
+		newUUID = uuid.NewString()
+		checkingRow := r.db.QueryRowContext(ctx, "SELECT uuid FROM recipes WHERE uuid = $1", newUUID)
+		if err := checkingRow.Scan(&newUUID); err == nil {
+			uuidNotUsed = true
+		}
+	}
+
 	row := r.db.QueryRow(query, newUUID, recipe.Name, recipe.BrewTimeSeconds)
 	err := row.Err()
 	if err != nil {

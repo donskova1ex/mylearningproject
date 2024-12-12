@@ -19,17 +19,30 @@ func NewIngredientPostgres(db *sqlx.DB) *IngredientsPostgres {
 	return &IngredientsPostgres{db: db}
 }
 
-func (i *IngredientsPostgres) CreateIngredient(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error) { //TODO: перенести в рецепты и другие таблицы аналогично
+func (i *IngredientsPostgres) CreateIngredient(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error) {
 	var id uint32
+	var newUUID string
+	var uuidNotUsed = false
+
 	query := "INSERT INTO ingredients (name, uuid) values ($1, $2) RETURNING id"
-	newUUID := uuid.NewString()
+
+	//перебор uuid
+	for uuidNotUsed != true {
+		newUUID = uuid.NewString()
+		checkingRow := i.db.QueryRowContext(ctx, "SELECT uuid FROM ingredients WHERE uuid = $1", newUUID)
+		if err := checkingRow.Scan(&newUUID); err == nil {
+			uuidNotUsed = true
+		}
+	}
+	//перебор uuid
+
 	row := i.db.QueryRow(query, ingredient.Name, newUUID)
 	err := row.Err()
 	if err != nil {
 		return nil, fmt.Errorf("can not read ingredient from db: %w", err)
 	}
 	if err := row.Scan(&id); err != nil {
-		return nil, fmt.Errorf("impossible to create an entity: %w", err) //TODO: обертка ошибок через fmt.Errorf
+		return nil, fmt.Errorf("impossible to create an entity: %w", err)
 	}
 	newIngr := &domain.Ingredient{
 		Name: ingredient.Name,

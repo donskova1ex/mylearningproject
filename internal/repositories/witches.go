@@ -21,8 +21,20 @@ func NewWitchesPostgres(db *sqlx.DB) *WitchesPostgres {
 
 func (w *WitchesPostgres) CreateWitch(ctx context.Context, witch *domain.Witch) (*domain.Witch, error) {
 	var id uint32
+	var newUUID string
+	var uuidNotUsed = false
+
 	query := "INSERT INTO witches (uuid, name) values ($1, $2) RETURNING id" //TODO: обратботка на уникальный UUID во всех таблицах
-	newUUID := uuid.NewString()
+
+	for uuidNotUsed != true {
+		newUUID = uuid.NewString()
+		checkingRow := w.db.QueryRowContext(ctx, "SELECT uuid FROM witches WHERE uuid = $1", newUUID)
+		if err := checkingRow.Scan(&newUUID); err == nil {
+			uuidNotUsed = true
+		}
+	}
+
+	newUUID = uuid.NewString()
 	row := w.db.QueryRow(query, newUUID, witch.Name)
 	err := row.Err()
 	if err != nil {
