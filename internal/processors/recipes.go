@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/donskova1ex/mylearningproject/internal/domain"
 )
@@ -34,7 +35,8 @@ func NewRecipe(recipesRepository RecipesRepository, log RecipesLogger) *recipes 
 func (rec *recipes) RecipesList(ctx context.Context) ([]*domain.Recipe, error) {
 	r, err := rec.recipesRepository.RecipesAll(ctx)
 	if err != nil {
-		rec.log.Error("recipes list getting error: %w", err) // не так
+		rec.log.Error("it is impossible to get a recipes list",
+			slog.String("err", err.Error()))
 		return nil, fmt.Errorf("recipes list getting error: %w", err)
 	}
 	return r, nil
@@ -43,7 +45,7 @@ func (rec *recipes) RecipesList(ctx context.Context) ([]*domain.Recipe, error) {
 func (rec *recipes) CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
 	r, err := rec.recipesRepository.CreateRecipe(ctx, recipe)
 	if err != nil {
-		rec.log.Error("create recipe error: %w", err)
+		rec.log.Error("unable ")
 		return nil, fmt.Errorf("create recipe error: %w", err)
 	}
 	return r, nil

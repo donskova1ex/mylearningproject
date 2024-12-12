@@ -35,6 +35,7 @@ func (i *ingredients) IngredientsList(ctx context.Context) ([]*domain.Ingredient
 
 	r, err := i.ingredientsRepository.IngredientsAll(ctx)
 	if err != nil {
+		i.log.Error("it is impossible to get a ingredients list", slog.String("err", err.Error()))
 		return nil, err
 	}
 
@@ -54,6 +55,9 @@ func (i *ingredients) IngredientByID(ctx context.Context, uuid string) (*domain.
 func (i *ingredients) DeleteIngredientByID(ctx context.Context, uuid string) error {
 	err := i.ingredientsRepository.DeleteIngredientByUUID(ctx, uuid)
 	if err != nil {
+		i.log.Error("unable to delete ingredient by id",
+			slog.String("err", err.Error()),
+			slog.String("uuid", uuid))
 		return err
 	}
 	return nil
@@ -62,15 +66,18 @@ func (i *ingredients) DeleteIngredientByID(ctx context.Context, uuid string) err
 func (i *ingredients) UpdateIngredientByID(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error) {
 	ing, err := i.ingredientsRepository.UpdateIngredientByUUID(ctx, ingredient)
 	if err != nil {
+		i.log.Error("unable to update ingredient by id")
 		return nil, err
 	}
 	return ing, nil
 }
 
 func (i *ingredients) CreateIngredient(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error) {
-	ing, err := i.CreateIngredient(ctx, ingredient)
+	ing, err := i.ingredientsRepository.CreateIngredient(ctx, ingredient)
 
 	if err != nil {
+		i.log.Error("unable to create ingredient",
+			slog.String("err", err.Error()))
 		return nil, err
 	}
 
