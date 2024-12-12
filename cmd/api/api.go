@@ -12,12 +12,18 @@ import (
 )
 
 func main() {
-	//logger start
+
 	logger := slog.New(slog.NewJSONHandler(os.Stdin, nil))
 	logger.Info("application start")
 	slog.SetDefault(logger)
-	//logger end
-	db, err := repositories.NewPostgresDB(repositories.Config{})
+
+	pgDSN := os.Getenv("POSTGRES_DSN")
+	if pgDSN == "" {
+		logger.Error("empty POSTGRES_DSN")
+		os.Exit(1)
+	}
+
+	db, err := repositories.NewPostgresDB(pgDSN)
 	if err != nil {
 		logger.Error("can not postgres db connection", slog.String("error", err.Error()))
 		return

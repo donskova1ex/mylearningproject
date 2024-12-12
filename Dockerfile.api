@@ -13,7 +13,5 @@ ENV CGO_ENABLED=0
 #RUN go build -o openapi .
 RUN make api_local_build
 
-FROM scratch AS runtime
-COPY --from=builder /go/src/bin ./
-EXPOSE 8080/tcp
-ENTRYPOINT ["./api"]
+EXPOSE ${API_PORT}
+ENTRYPOINT [ "/go/src/bin/api" ]
