@@ -3,6 +3,7 @@ package repositories
 import (
 	"fmt"
 	"net/url"
+	"os"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -33,11 +34,17 @@ func NewPostgresDB(cfg Config) (*sqlx.DB, error) {
 
 func connectString(cfg Config) string {
 
+	// databaseURL := &url.URL{
+	// 	Scheme: "postgres",
+	// 	Host:   cfg.Host + ":" + cfg.Port,
+	// 	Path:   "/" + cfg.DBName,
+	// 	User:   url.UserPassword("dev", "dev1234"),
+	// }
 	databaseURL := &url.URL{
 		Scheme: "postgres",
-		Host:   cfg.Host + ":" + cfg.Port,
-		Path:   "/" + cfg.DBName,
-		User:   url.UserPassword("dev", "dev1234"),
+		Host:   os.Getenv("POSTGRES_USER") + ":" + os.Getenv("POSTGRES_PORT"),
+		Path:   "/" + os.Getenv("POSTGRES_DB"),
+		User:   url.UserPassword(os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD")),
 	}
 	rawQuery := make(url.Values)
 	rawQuery.Set("ssl_mode", "disable")
