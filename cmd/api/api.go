@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -12,9 +11,9 @@ import (
 )
 
 func main() {
-
-	logger := slog.New(slog.NewJSONHandler(os.Stdin, nil))
-	logger.Info("application start")
+	logJSONHandler := slog.NewJSONHandler(os.Stdout, nil)
+	logger := slog.New(logJSONHandler)
+	logger.Info("application started")
 	slog.SetDefault(logger)
 
 	pgDSN := os.Getenv("POSTGRES_DSN")
@@ -23,9 +22,15 @@ func main() {
 		os.Exit(1)
 	}
 
+	apiPort := os.Getenv("API_PORT")
+	if pgDSN == "" {
+		logger.Error("empty API_PORT")
+		os.Exit(1)
+	}
+
 	db, err := repositories.NewPostgresDB(pgDSN)
 	if err != nil {
-		logger.Error("can not postgres db connection", slog.String("error", err.Error()))
+		logger.Error("can not create postgres db connection", slog.String("error", err.Error()))
 		return
 	}
 	defer db.Close()
@@ -47,5 +52,13 @@ func main() {
 
 	router := openapi.NewRouter(IngredientAPIController, RecipeAPIController, WitchAPIController)
 
-	log.Fatal(http.ListenAndServe(":8080", router))
+	httpServer := http.Server{
+		Addr:     ":" + apiPort,
+		ErrorLog: slog.NewLogLogger(logJSONHandler, slog.LevelError),
+		Handler:  router,
+	}
+
+	if err := httpServer.ListenAndServe(); err != nil {
+		logger.Error("failed to start server", slog.String("err", err.Error()))
+	}
 }

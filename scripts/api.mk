@@ -1,11 +1,11 @@
 PROJECT?=github.com/donskova1ex/mylearningproject
-NAME?=api
+API_NAME?=api
 VERSION?=0.0.1
-CONTAINER_NAME?=docker.io/donskova1ex/${NAME}
+CONTAINER_NAME?=docker.io/donskova1ex/${API_NAME}
 
-# local
+# for local uses
 api_local_build:
-	go build -o bin/${NAME} cmd/${NAME}/${NAME}.go
+	go build -o bin/${API_NAME} cmd/${API_NAME}/${API_NAME}.go
 
 # docker
 api_docker_build:
