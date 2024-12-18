@@ -53,16 +53,27 @@ func (s *IngredientAPIService) IngredientsByName(ctx context.Context, name strin
 
 // IngredientsList - Ingredients list
 func (s *IngredientAPIService) IngredientsList(ctx context.Context) (ImplResponse, error) {
-	// TODO - update IngredientsList with the required logic for this service method.
-	// Add api_ingredient_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	ingredients, err := s.ingredientsProcessor.IngredientsList(ctx)
+	if err != nil {
+		return Response(http.StatusInternalServerError, nil), err
+	}
 
-	// TODO: Uncomment the next line to return response Response(200, []Ingredient{}) or use other options such as http.Ok ...
-	// return Response(200, []Ingredient{}), nil
+	openApiIngredients := domainIngredinetsToOpenApi(ingredients) //TODO:  сделать везде
+	if len(openApiIngredients) == 0 {
+		return Response(http.StatusNoContent, openApiIngredients), nil
+	}
+	return Response(http.StatusOK, openApiIngredients), nil
+}
 
-	// TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
-	// return Response(204, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("IngredientsList method not implemented")
+func domainIngredinetsToOpenApi(domainIngredients []*domain.Ingredient) []Ingredient  {
+	ingredients := make([]Ingredient, 0, len(domainIngredients))
+	for _, ing := range domainIngredients {
+		ingredients = append(ingredients, Ingredient{
+			Id: ing.UUID,
+			Name: ing.Name,
+		})
+	}
+	return ingredients
 }
 
 // GetIngredientById - Find ingredient by ID

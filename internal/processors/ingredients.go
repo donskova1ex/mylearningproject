@@ -37,7 +37,7 @@ func (i *ingredients) IngredientsList(ctx context.Context) ([]*domain.Ingredient
 	r, err := i.ingredientsRepository.IngredientsAll(ctx)
 	if err != nil {
 		i.log.Error("it is impossible to get a ingredients list", slog.String("err", err.Error()))
-		return nil, fmt.Errorf("it is impossible to get a ingredients list")
+		return nil, fmt.Errorf("it is impossible to get a ingredients list: %w", err)
 	}
 
 	return r, nil

@@ -56,17 +56,19 @@ func (i *IngredientsPostgres) IngredientsAll(ctx context.Context) ([]*domain.Ing
 	ingredients := []*domain.Ingredient{}
 	rows, err := i.db.Queryx("SELECT uuid, id, name FROM ingredients")
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("empty table: %w", err)
+		return ingredients, nil
 	}
 	if err != nil {
 		return nil, fmt.Errorf("can not read rows: %w", err)
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err = rows.StructScan(&ingredients)
+		ingredient := &domain.Ingredient{}
+		err = rows.StructScan(ingredient) // TODO: добавить везде , т.к. везде ошибки (чекнуть sqlx есть метод)
 		if err != nil {
-			return nil, fmt.Errorf("unable to perform ingredients select: %w", err)
+			return nil, fmt.Errorf("unable to scan ingredient: %w", err)
 		}
+		ingredients = append(ingredients, ingredient)
 	}
 	return ingredients, nil
 }
