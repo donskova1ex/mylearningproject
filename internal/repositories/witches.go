@@ -58,7 +58,7 @@ func (w *WitchesPostgres) WitchesAll(ctx context.Context) ([]*domain.Witch, erro
 func (w *WitchesPostgres) WitchByUUID(ctx context.Context, uuid string) (*domain.Witch, error) {
 	witch := &domain.Witch{}
 	query := "SELECT id, name, uuid FROM witches WHERE uuid = $1"
-	err := w.db.GetContext(ctx, witch, query, uuid) // TODO: поправить в остальных модулях
+	err := w.db.GetContext(ctx, witch, query, uuid)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("witch with UUID: %s not found: %w", uuid, err)
 	}

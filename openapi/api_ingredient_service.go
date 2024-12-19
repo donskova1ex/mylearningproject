@@ -60,7 +60,7 @@ func (s *IngredientAPIService) IngredientsList(ctx context.Context) (ImplRespons
 		return Response(http.StatusInternalServerError, nil), err
 	}
 
-	openApiIngredients := domainIngredinetsToOpenApi(ingredients) //TODO:  сделать везде
+	openApiIngredients := domainIngredinetsToOpenApi(ingredients)
 	if len(openApiIngredients) == 0 {
 		return Response(http.StatusNoContent, openApiIngredients), nil
 	}
