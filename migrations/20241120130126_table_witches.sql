@@ -1,8 +1,9 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS witches (
-  uuid VARCHAR(36) unique,
-  name VARCHAR(64) );
+    id SERIAL PRIMARY KEY,
+    uuid VARCHAR(36) unique,
+    name VARCHAR(64) );
 -- +goose StatementEnd
 
 -- +goose Down
