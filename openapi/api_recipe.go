@@ -178,12 +178,9 @@ func (c *RecipeAPIController) UpdateRecipeWithForm(w http.ResponseWriter, r *htt
 // DeleteRecipe - Delete recipe
 func (c *RecipeAPIController) DeleteRecipe(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	idParam, err := parseNumericParameter[int64](
-		params["id"],
-		WithRequire[int64](parseInt64),
-	)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
+	idParam := params["id"]
+	if idParam == "" {
+		c.errorHandler(w, r, &RequiredError{"id"}, nil)
 		return
 	}
 	result, err := c.service.DeleteRecipe(r.Context(), idParam)

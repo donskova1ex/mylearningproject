@@ -59,6 +59,10 @@ func (i *IngredientsPostgres) IngredientByUUID(ctx context.Context, uuid string)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("ingredient with UUID: %s not found: %w", uuid, err)
 	}
+
+	if err != nil {
+		return nil, fmt.Errorf("can not get ingredient by uuid: %s. %w", uuid, err)
+	}
 	return ingredient, nil
 }
 

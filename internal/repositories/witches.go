@@ -62,6 +62,11 @@ func (w *WitchesPostgres) WitchByUUID(ctx context.Context, uuid string) (*domain
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("witch with UUID: %s not found: %w", uuid, err)
 	}
+
+	if err != nil {
+		return nil, fmt.Errorf("can not get witch by uuid: %s. %w", uuid, err)
+	}
+
 	return witch, nil
 }
 

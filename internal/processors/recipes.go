@@ -64,11 +64,11 @@ func (rec *recipes) RecipeByID(ctx context.Context, uuid string) (*domain.Recipe
 func (rec *recipes) DeleteRecipeByID(ctx context.Context, uuid string) error {
 	err := rec.recipesRepository.DeleteRecipeByUUID(ctx, uuid)
 	if err != nil {
-		return fmt.Errorf("can not delete recipe by uuid: %s, error: %w", uuid, err)
+		rec.log.Error("unable to delete witch by uuid",
+			slog.String("err", err.Error()),
+			slog.String("uuid", uuid))
+		return fmt.Errorf("unable to delete witch by uuid: %s, error: %w", uuid, err)
 	}
-	rec.log.Error("unable to delete recipe by uuid",
-		slog.String("err", err.Error()),
-		slog.String("uuid", uuid))
 	return nil
 }
 

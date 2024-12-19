@@ -69,7 +69,7 @@ type RecipeAPIServicer interface {
 	GetRecipe(context.Context, string, string) (ImplResponse, error)
 	GetRecipeById(context.Context, string) (ImplResponse, error)
 	UpdateRecipeWithForm(context.Context, string, Recipe) (ImplResponse, error)
-	DeleteRecipe(context.Context, int64) (ImplResponse, error)
+	DeleteRecipe(context.Context, string) (ImplResponse, error)
 }
 
 // WitchAPIServicer defines the api actions for the WitchAPI service

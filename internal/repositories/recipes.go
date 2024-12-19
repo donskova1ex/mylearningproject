@@ -55,20 +55,12 @@ func (r *RecipesPostgres) CreateRecipe(ctx context.Context, recipe *domain.Recip
 func (r *RecipesPostgres) RecipesAll(ctx context.Context) ([]*domain.Recipe, error) {
 	recipes := []*domain.Recipe{}
 
-	rows, err := r.db.Queryx("SELECT uuid, id, name, brew_time_seconds FROM recipes")
+	err := r.db.Select(&recipes, "SELECT uuid, id, name, brew_time_seconds FROM recipes")
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("empty table: %w", err)
+		return recipes, nil
 	}
-
 	if err != nil {
 		return nil, fmt.Errorf("can not read rows: %w", err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		err = rows.StructScan(&recipes)
-		if err != nil {
-			return nil, fmt.Errorf("unable to perform ingredients select: %w", err)
-		}
 	}
 	return recipes, nil
 }
@@ -76,24 +68,21 @@ func (r *RecipesPostgres) RecipesAll(ctx context.Context) ([]*domain.Recipe, err
 func (r *RecipesPostgres) RecipeByUUID(ctx context.Context, uuid string) (*domain.Recipe, error) {
 	recipe := &domain.Recipe{}
 	query := "SELECT uuid, id, name, brew_time_seconds FROM recipes WHERE uuid = $1"
-	row := r.db.QueryRow(query, uuid)
-	if errors.Is(row.Err(), sql.ErrNoRows) {
-		return nil, fmt.Errorf("recipe with UUID: %s not found: %w", uuid, row.Err())
+	err := r.db.GetContext(ctx, recipe, query, uuid)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, fmt.Errorf("recipe with UUID: %s not found: %w", uuid, err)
 	}
-	if row.Err() != nil {
-		return nil, fmt.Errorf("can not read recipe from db: %w", row.Err())
-	}
-	err := row.Scan(&recipe)
 	if err != nil {
-		return nil, fmt.Errorf("can not create struct recipe from db: %w", err)
+		return nil, fmt.Errorf("can not get recipe by uuid: %s. %w", uuid, err)
 	}
 	return recipe, nil
 }
 
 func (r *RecipesPostgres) DeleteRecipeByUUID(ctx context.Context, uuid string) error {
-	_, err := r.db.Exec("DELETE FROM recipes WHERE uuid = $1", uuid)
-	if errors.Is(err, sql.ErrNoRows) {
-		return fmt.Errorf("recipe not found: %w", err)
+	_, err := r.db.ExecContext(ctx, "DELETE FROM recipes WHERE uuid = $1", uuid)
+
+	if err != nil {
+		return fmt.Errorf("there is no object with this ID: %w", err)
 	}
 	return nil
 }
