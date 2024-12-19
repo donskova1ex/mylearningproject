@@ -81,5 +81,5 @@ type WitchAPIServicer interface {
 	GetWitch(context.Context, string, string) (ImplResponse, error)
 	GetWitchById(context.Context, string) (ImplResponse, error)
 	UpdateWitchWithForm(context.Context, string) (ImplResponse, error)
-	DeleteWitch(context.Context, int64) (ImplResponse, error)
+	DeleteWitch(context.Context, string) (ImplResponse, error)
 }

@@ -19,7 +19,7 @@ import (
 
 // WitchAPIController binds http requests to an api service and writes the service results to the http response
 type WitchAPIController struct {
-	service WitchAPIServicer
+	service      WitchAPIServicer
 	errorHandler ErrorHandler
 }
 
@@ -159,13 +159,27 @@ func (c *WitchAPIController) UpdateWitchWithForm(w http.ResponseWriter, r *http.
 
 // DeleteWitch - Deletes a witch
 func (c *WitchAPIController) DeleteWitch(w http.ResponseWriter, r *http.Request) {
+	//params := mux.Vars(r)
+	//idParam, err := parseNumericParameter[int64](
+	//	params["id"],
+	//	WithRequire[int64](parseInt64),
+	//)
+	//if err != nil {
+	//	c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
+	//	return
+	//}
+	//result, err := c.service.DeleteWitch(r.Context(), idParam)
+	//// If an error occurred, encode the error with the status code
+	//if err != nil {
+	//	c.errorHandler(w, r, err, &result)
+	//	return
+	//}
+	//// If no error, encode the body and the result code
+	//_ = EncodeJSONResponse(result.Body, &result.Code, w)
 	params := mux.Vars(r)
-	idParam, err := parseNumericParameter[int64](
-		params["id"],
-		WithRequire[int64](parseInt64),
-	)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
+	idParam := params["id"]
+	if idParam == "" {
+		c.errorHandler(w, r, &RequiredError{"id"}, nil)
 		return
 	}
 	result, err := c.service.DeleteWitch(r.Context(), idParam)

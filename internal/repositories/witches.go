@@ -25,7 +25,7 @@ func (w *WitchesPostgres) CreateWitch(ctx context.Context, witch *domain.Witch) 
 	query := "INSERT INTO witches (uuid, name) values ($1, $2) RETURNING id"
 
 	newUUID := uuid.NewString()
-	row := w.db.QueryRow(query, newUUID, witch.Name)
+	row := w.db.QueryRowContext(ctx, query, newUUID, witch.Name)
 	err := row.Err()
 	if err != nil {
 		return nil, fmt.Errorf("can not read witch from db: %w", err)
@@ -43,49 +43,32 @@ func (w *WitchesPostgres) CreateWitch(ctx context.Context, witch *domain.Witch) 
 
 func (w *WitchesPostgres) WitchesAll(ctx context.Context) ([]*domain.Witch, error) {
 	witches := []*domain.Witch{}
-	rows, err := w.db.Queryx("SELECT uuid, id, name FROM witches")
+	//rows, err := w.db.Queryx("SELECT uuid, id, name FROM witches")
+	err := w.db.SelectContext(ctx, &witches, "SELECT uuid, id, name FROM witches")
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("empty table: %w", err)
+		return witches, nil
 	}
 
 	if err != nil {
 		return nil, fmt.Errorf("can not read rows: %w", err)
 	}
-	defer rows.Close()
-	for rows.Next() {
-		err = rows.StructScan(&witches)
-		if err != nil {
-			return nil, fmt.Errorf("unable to perform witches select: %w", err)
-		}
-
-	}
-
 	return witches, nil
 }
 
 func (w *WitchesPostgres) WitchByUUID(ctx context.Context, uuid string) (*domain.Witch, error) {
 	witch := &domain.Witch{}
 	query := "SELECT id, name, uuid FROM witches WHERE uuid = $1"
-	row := w.db.QueryRow(query, uuid) // TODO: поправить в остальных модулях
-	if errors.Is(row.Err(), sql.ErrNoRows) {
-		return nil, fmt.Errorf("witch with UUID: %s not found: %w", uuid, row.Err())
-	}
-	if row.Err() != nil {
-		return nil, fmt.Errorf("can not read witch from db: %w", row.Err())
-	}
-
-	err := row.Scan(&witch)
-	if err != nil {
-		return nil, fmt.Errorf("can not create struct witch from db: %w", err)
+	err := w.db.GetContext(ctx, witch, query, uuid) // TODO: поправить в остальных модулях
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, fmt.Errorf("witch with UUID: %s not found: %w", uuid, err)
 	}
 	return witch, nil
-
 }
 
 func (w *WitchesPostgres) DeleteWitchByUUID(ctx context.Context, uuid string) error {
-	_, err := w.db.Exec("DELETE FROM witches WHERE uuid = $1", uuid)
+	_, err := w.db.ExecContext(ctx, "DELETE FROM witches WHERE uuid = $1", uuid)
 	if err != nil {
-		return fmt.Errorf("can not delete witch with this ID: %w", err)
+		return fmt.Errorf("there is no object with this ID: %w", err)
 	}
 	return nil
 }

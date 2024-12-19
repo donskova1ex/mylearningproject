@@ -24,7 +24,7 @@ func (i *IngredientsPostgres) CreateIngredient(ctx context.Context, ingredient *
 
 	query := "INSERT INTO ingredients (name, uuid) values ($1, $2) RETURNING id"
 	newUUID := uuid.NewString()
-	row := i.db.QueryRow(query, ingredient.Name, newUUID)
+	row := i.db.QueryRowContext(ctx, query, ingredient.Name, newUUID)
 	err := row.Err()
 	if err != nil {
 		return nil, fmt.Errorf("can not read ingredient from db: %w", err)
