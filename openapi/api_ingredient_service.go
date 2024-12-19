@@ -25,8 +25,8 @@ import (
 
 type IngredientsProcessor interface {
 	IngredientsList(ctx context.Context) ([]*domain.Ingredient, error)
-	IngredientByID(ctx context.Context, uuid string) (*domain.Ingredient, error)
-	DeleteIngredientByUUID(ctx context.Context, uuid string) error
+	// IngredientByID(ctx context.Context, uuid string) (*domain.Ingredient, error)
+	// DeleteIngredientByUUID(ctx context.Context, uuid string) error
 }
 
 type IngredientAPIService struct {
@@ -59,7 +59,6 @@ func (s *IngredientAPIService) IngredientsList(ctx context.Context) (ImplRespons
 	if err != nil {
 		return Response(http.StatusInternalServerError, nil), err
 	}
-
 	openApiIngredients := domainIngredinetsToOpenApi(ingredients) //TODO:  сделать везде
 	if len(openApiIngredients) == 0 {
 		return Response(http.StatusNoContent, openApiIngredients), nil
@@ -80,18 +79,19 @@ func domainIngredinetsToOpenApi(domainIngredients []*domain.Ingredient) []Ingred
 
 // GetIngredientById - Find ingredient by ID
 func (s *IngredientAPIService) GetIngredientById(ctx context.Context, uuid string) (ImplResponse, error) {
-	if uuid == "" {
-		return Response(http.StatusBadRequest, nil), errors.New("uuid is required")
-	}
-	ingredient, err := s.ingredientsProcessor.IngredientByID(ctx, uuid)
-	if err != nil {
-		return Response(http.StatusInternalServerError, nil), err
-	}
-	openApiIngredient := Ingredient{
-		Id:   ingredient.UUID,
-		Name: ingredient.Name,
-	}
-	return Response(http.StatusOK, openApiIngredient), nil
+	// if uuid == "" {
+	// 	return Response(http.StatusBadRequest, nil), errors.New("uuid is required")
+	// }
+	// ingredient, err := s.ingredientsProcessor.IngredientByID(ctx, uuid)
+	// if err != nil {
+	// 	return Response(http.StatusInternalServerError, nil), err
+	// }
+	// openApiIngredient := Ingredient{
+	// 	Id:   ingredient.UUID,
+	// 	Name: ingredient.Name,
+	// }
+	// return Response(http.StatusOK, openApiIngredient), nil
+	return Response(http.StatusNotImplemented, nil), errors.New("UpdateIngredient method not implemented")
 
 }
 
