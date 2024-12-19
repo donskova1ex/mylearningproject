@@ -305,7 +305,7 @@ paths:
                   $ref: '#/components/schemas/ingredient'
         '204':
           description: Empty array
-  /ingredient/{id}:
+  /ingredient/{id}:  |-Поправить на uuid {type: string}
     get: 
       tags: 
         - ingredient

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/donskova1ex/mylearningproject/internal"
 	"github.com/donskova1ex/mylearningproject/internal/domain"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -21,18 +22,9 @@ func NewRecipePostgres(db *sqlx.DB) *RecipesPostgres {
 
 func (r *RecipesPostgres) CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
 	var id uint32
-	var newUUID string
-	var uuidNotUsed = false
 
 	query := "INSERT INTO recipes (uuid, Name, BrewTimeSeconds) values ($1, $2, $3)RETURNING id"
-
-	for uuidNotUsed != true {
-		newUUID = uuid.NewString()
-		checkingRow := r.db.QueryRowContext(ctx, "SELECT uuid FROM recipes WHERE uuid = $1", newUUID)
-		if err := checkingRow.Scan(&newUUID); err == nil {
-			uuidNotUsed = true
-		}
-	}
+	newUUID := uuid.NewString()
 
 	row := r.db.QueryRow(query, newUUID, recipe.Name, recipe.BrewTimeSeconds)
 	err := row.Err()
@@ -55,7 +47,7 @@ func (r *RecipesPostgres) CreateRecipe(ctx context.Context, recipe *domain.Recip
 func (r *RecipesPostgres) RecipesAll(ctx context.Context) ([]*domain.Recipe, error) {
 	recipes := []*domain.Recipe{}
 
-	err := r.db.Select(&recipes, "SELECT uuid, id, name, brew_time_seconds FROM recipes")
+	err := r.db.SelectContext(ctx, &recipes, "SELECT uuid, id, name, brew_time_seconds FROM recipes")
 	if errors.Is(err, sql.ErrNoRows) {
 		return recipes, nil
 	}
@@ -70,7 +62,8 @@ func (r *RecipesPostgres) RecipeByUUID(ctx context.Context, uuid string) (*domai
 	query := "SELECT uuid, id, name, brew_time_seconds FROM recipes WHERE uuid = $1"
 	err := r.db.GetContext(ctx, recipe, query, uuid)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("recipe with UUID: %s not found: %w", uuid, err)
+		//return nil, fmt.Errorf("recipe with UUID: %s not found: %w", uuid, err)
+		return nil, fmt.Errorf("%w with uuid [%s]", internal.ErrRecipeNotFound, uuid) // TODO: придумать как сделать прим. так же
 	}
 	if err != nil {
 		return nil, fmt.Errorf("can not get recipe by uuid: %s. %w", uuid, err)

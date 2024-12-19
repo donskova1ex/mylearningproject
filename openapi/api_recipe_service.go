@@ -17,6 +17,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/donskova1ex/mylearningproject/internal"
 	"github.com/donskova1ex/mylearningproject/internal/domain"
 )
 
@@ -47,7 +48,7 @@ func (s *RecipeAPIService) RecipesList(ctx context.Context) (ImplResponse, error
 	}
 	openApiRecipes := domainRecipesToOpenApi(recipes)
 	if len(openApiRecipes) == 0 {
-		return Response(http.StatusNoContent, nil), nil
+		return Response(http.StatusNoContent, recipes), nil
 	}
 	return Response(http.StatusOK, openApiRecipes), nil
 }
@@ -91,6 +92,9 @@ func (s *RecipeAPIService) GetRecipeById(ctx context.Context, uuid string) (Impl
 		return Response(http.StatusBadRequest, nil), errors.New("uuid is required")
 	}
 	recipe, err := s.recipesProcessor.RecipeByID(ctx, uuid)
+	if errors.Is(err, internal.ErrRecipeNotFound) {
+		return Response(http.StatusNotFound, nil), err
+	}
 	if err != nil {
 		return Response(http.StatusInternalServerError, nil), err
 	}
@@ -127,5 +131,5 @@ func (s *RecipeAPIService) DeleteRecipe(ctx context.Context, uuid string) (ImplR
 	if err := s.recipesProcessor.DeleteRecipeByID(ctx, uuid); err != nil {
 		return Response(http.StatusInternalServerError, nil), err
 	}
-	return Response(http.StatusOK, fmt.Sprintf("recipe with uuid: %s, deleted", uuid)), nil
+	return Response(http.StatusOK, fmt.Sprintf("recipe with uuid: %s, deleted", uuid)), nil //TODO: Обернуть удаление, что бы возвращалось боди опрееленного формата 
 }

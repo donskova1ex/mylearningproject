@@ -51,7 +51,7 @@ func main() {
 	WitchAPIController := openapi.NewWitchAPIController(WitchAPIService)
 
 	router := openapi.NewRouter(IngredientAPIController, RecipeAPIController, WitchAPIController)
-	//router.Use(func(h http.Handler) http.Handler {h.ServeHTTP()}) TODO: MUX посмотреть
+	//router.Use(func(h http.Handler) http.Handler {h.ServeHTTP()}) //TODO: MUX посмотреть
 	httpServer := http.Server{
 		Addr:     ":" + apiPort,
 		ErrorLog: slog.NewLogLogger(logJSONHandler, slog.LevelError),
