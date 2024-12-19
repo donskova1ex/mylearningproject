@@ -55,22 +55,15 @@ func (i *IngredientsPostgres) IngredientsAll(ctx context.Context) ([]*domain.Ing
 func (i *IngredientsPostgres) IngredientByUUID(ctx context.Context, uuid string) (*domain.Ingredient, error) {
 	ingredient := &domain.Ingredient{}
 	query := "SELECT id, name, uuid FROM ingredients WHERE uuid = $1"
-	row := i.db.QueryRow(query, uuid)
-	if errors.Is(row.Err(), sql.ErrNoRows) {
-		return nil, fmt.Errorf("ingredient with UUID: %s not found: %w", uuid, row.Err())
-	}
-	if row.Err() != nil {
-		return nil, fmt.Errorf("can not read ingredient from db: %w", row.Err())
-	}
-	err := row.Scan(&ingredient)
-	if err != nil {
-		return nil, fmt.Errorf("can not create struct ingredient from db: %w", err)
+	err := i.db.GetContext(ctx, ingredient, query, uuid)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, fmt.Errorf("ingredient with UUID: %s not found: %w", uuid, err)
 	}
 	return ingredient, nil
 }
 
 func (i *IngredientsPostgres) DeleteIngredientByUUID(ctx context.Context, uuid string) error {
-	_, err := i.db.Exec("DELETE FROM ingredients WHERE uuid = $1", uuid)
+	_, err := i.db.ExecContext(ctx, "DELETE FROM ingredients WHERE uuid = $1", uuid)
 
 	if err != nil {
 		return fmt.Errorf("there is no object with this ID: %w", err)

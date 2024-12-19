@@ -23,17 +23,19 @@ import (
 // This service should implement the business logic for every endpoint for the IngredientAPI API.
 // Include any external packages or services that will be required by this service.
 
-type IngredientsProcessor interface{
+type IngredientsProcessor interface {
 	IngredientsList(ctx context.Context) ([]*domain.Ingredient, error)
+	IngredientByID(ctx context.Context, uuid string) (*domain.Ingredient, error)
+	DeleteIngredientByUUID(ctx context.Context, uuid string) error
 }
 
 type IngredientAPIService struct {
 	ingredientsProcessor IngredientsProcessor
-	log *slog.Logger
+	log                  *slog.Logger
 }
 
 // NewIngredientAPIService creates a default api service
-func NewIngredientAPIService(ingredientsProcessor IngredientsProcessor,log *slog.Logger) *IngredientAPIService {
+func NewIngredientAPIService(ingredientsProcessor IngredientsProcessor, log *slog.Logger) *IngredientAPIService {
 	return &IngredientAPIService{ingredientsProcessor: ingredientsProcessor, log: log}
 }
 
@@ -65,11 +67,11 @@ func (s *IngredientAPIService) IngredientsList(ctx context.Context) (ImplRespons
 	return Response(http.StatusOK, openApiIngredients), nil
 }
 
-func domainIngredinetsToOpenApi(domainIngredients []*domain.Ingredient) []Ingredient  {
+func domainIngredinetsToOpenApi(domainIngredients []*domain.Ingredient) []Ingredient {
 	ingredients := make([]Ingredient, 0, len(domainIngredients))
 	for _, ing := range domainIngredients {
 		ingredients = append(ingredients, Ingredient{
-			Id: ing.UUID,
+			Id:   ing.UUID,
 			Name: ing.Name,
 		})
 	}
@@ -78,19 +80,19 @@ func domainIngredinetsToOpenApi(domainIngredients []*domain.Ingredient) []Ingred
 
 // GetIngredientById - Find ingredient by ID
 func (s *IngredientAPIService) GetIngredientById(ctx context.Context, uuid string) (ImplResponse, error) {
-	// TODO - update GetIngredientById with the required logic for this service method.
-	// Add api_ingredient_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	if uuid == "" {
+		return Response(http.StatusBadRequest, nil), errors.New("uuid is required")
+	}
+	ingredient, err := s.ingredientsProcessor.IngredientByID(ctx, uuid)
+	if err != nil {
+		return Response(http.StatusInternalServerError, nil), err
+	}
+	openApiIngredient := Ingredient{
+		Id:   ingredient.UUID,
+		Name: ingredient.Name,
+	}
+	return Response(http.StatusOK, openApiIngredient), nil
 
-	// TODO: Uncomment the next line to return response Response(200, Ingredient{}) or use other options such as http.Ok ...
-	// return Response(200, Ingredient{}), nil
-
-	// TODO: Uncomment the next line to return response Response(400, {}) or use other options such as http.Ok ...
-	// return Response(400, nil),nil
-
-	// TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
-	// return Response(404, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("GetIngredientById method not implemented")
 }
 
 // UpdateIngredient - Update a ingredient by id
@@ -114,7 +116,7 @@ func (s *IngredientAPIService) UpdateIngredient(ctx context.Context, id string, 
 }
 
 // DeleteIngredient - Delete ingredient
-func (s *IngredientAPIService) DeleteIngredient(ctx context.Context, id int64) (ImplResponse, error) {
+func (s *IngredientAPIService) DeleteIngredient(ctx context.Context, uuid string) (ImplResponse, error) {
 	// TODO - update DeleteIngredient with the required logic for this service method.
 	// Add api_ingredient_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
