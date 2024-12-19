@@ -77,7 +77,7 @@ func domainIngredinetsToOpenApi(domainIngredients []*domain.Ingredient) []Ingred
 }
 
 // GetIngredientById - Find ingredient by ID
-func (s *IngredientAPIService) GetIngredientById(ctx context.Context, id string) (ImplResponse, error) {
+func (s *IngredientAPIService) GetIngredientById(ctx context.Context, uuid string) (ImplResponse, error) {
 	// TODO - update GetIngredientById with the required logic for this service method.
 	// Add api_ingredient_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 

@@ -21,21 +21,9 @@ func NewIngredientPostgres(db *sqlx.DB) *IngredientsPostgres {
 
 func (i *IngredientsPostgres) CreateIngredient(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error) {
 	var id uint32
-	var newUUID string
-	var uuidNotUsed = false
 
 	query := "INSERT INTO ingredients (name, uuid) values ($1, $2) RETURNING id"
-
-	//перебор uuid
-	for uuidNotUsed != true {
-		newUUID = uuid.NewString()
-		checkingRow := i.db.QueryRowContext(ctx, "SELECT uuid FROM ingredients WHERE uuid = $1", newUUID)
-		if err := checkingRow.Scan(&newUUID); err == nil {
-			uuidNotUsed = true
-		}
-	}
-	//перебор uuid
-
+	newUUID := uuid.NewString()
 	row := i.db.QueryRow(query, ingredient.Name, newUUID)
 	err := row.Err()
 	if err != nil {
@@ -54,21 +42,12 @@ func (i *IngredientsPostgres) CreateIngredient(ctx context.Context, ingredient *
 
 func (i *IngredientsPostgres) IngredientsAll(ctx context.Context) ([]*domain.Ingredient, error) {
 	ingredients := []*domain.Ingredient{}
-	rows, err := i.db.Queryx("SELECT uuid, id, name FROM ingredients")
+	err := i.db.Select(&ingredients, "SELECT uuid, id, name FROM ingredients")
 	if errors.Is(err, sql.ErrNoRows) {
 		return ingredients, nil
 	}
 	if err != nil {
 		return nil, fmt.Errorf("can not read rows: %w", err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		ingredient := &domain.Ingredient{}
-		err = rows.StructScan(ingredient) // TODO: добавить везде , т.к. везде ошибки (чекнуть sqlx есть метод)
-		if err != nil {
-			return nil, fmt.Errorf("unable to scan ingredient: %w", err)
-		}
-		ingredients = append(ingredients, ingredient)
 	}
 	return ingredients, nil
 }
