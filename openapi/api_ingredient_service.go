@@ -13,6 +13,7 @@ package openapi
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -26,7 +27,7 @@ import (
 type IngredientsProcessor interface {
 	IngredientsList(ctx context.Context) ([]*domain.Ingredient, error)
 	IngredientByID(ctx context.Context, uuid string) (*domain.Ingredient, error)
-	//DeleteIngredientByUUID(ctx context.Context, uuid string) error
+	DeleteIngredientByID(ctx context.Context, uuid string) error
 }
 
 type IngredientAPIService struct {
@@ -77,7 +78,6 @@ func domainIngredinetsToOpenApi(domainIngredients []*domain.Ingredient) []Ingred
 	return ingredients
 }
 
-// GetIngredientById - Find ingredient by ID
 func (s *IngredientAPIService) GetIngredientById(ctx context.Context, uuid string) (ImplResponse, error) {
 	if uuid == "" {
 		return Response(http.StatusBadRequest, nil), errors.New("uuid is required")
@@ -115,12 +115,9 @@ func (s *IngredientAPIService) UpdateIngredient(ctx context.Context, id string, 
 }
 
 // DeleteIngredient - Delete ingredient
-func (s *IngredientAPIService) DeleteIngredient(ctx context.Context, id int64) (ImplResponse, error) {
-	// TODO - update DeleteIngredient with the required logic for this service method.
-	// Add api_ingredient_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
-
-	// TODO: Uncomment the next line to return response Response(400, {}) or use other options such as http.Ok ...
-	// return Response(400, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("DeleteIngredient method not implemented")
+func (s *IngredientAPIService) DeleteIngredient(ctx context.Context, uuid string) (ImplResponse, error) {
+	if err := s.ingredientsProcessor.DeleteIngredientByID(ctx, uuid); err != nil {
+		return Response(http.StatusInternalServerError, nil), err
+	}
+	return Response(http.StatusOK, fmt.Sprintf("ingredient with uuid: %s, deleted", uuid)), nil
 }

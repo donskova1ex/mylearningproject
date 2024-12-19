@@ -15,32 +15,32 @@ import (
 	"net/http"
 )
 
-
-
 // IngredientAPIRouter defines the required methods for binding the api requests to a responses for the IngredientAPI
 // The IngredientAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a IngredientAPIServicer to perform the required actions, then write the service results to the http response.
-type IngredientAPIRouter interface { 
+type IngredientAPIRouter interface {
 	IngredientsByName(http.ResponseWriter, *http.Request)
 	IngredientsList(http.ResponseWriter, *http.Request)
 	GetIngredientById(http.ResponseWriter, *http.Request)
 	UpdateIngredient(http.ResponseWriter, *http.Request)
 	DeleteIngredient(http.ResponseWriter, *http.Request)
 }
+
 // RecipeAPIRouter defines the required methods for binding the api requests to a responses for the RecipeAPI
 // The RecipeAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a RecipeAPIServicer to perform the required actions, then write the service results to the http response.
-type RecipeAPIRouter interface { 
+type RecipeAPIRouter interface {
 	RecipesList(http.ResponseWriter, *http.Request)
 	GetRecipe(http.ResponseWriter, *http.Request)
 	GetRecipeById(http.ResponseWriter, *http.Request)
 	UpdateRecipeWithForm(http.ResponseWriter, *http.Request)
 	DeleteRecipe(http.ResponseWriter, *http.Request)
 }
+
 // WitchAPIRouter defines the required methods for binding the api requests to a responses for the WitchAPI
 // The WitchAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a WitchAPIServicer to perform the required actions, then write the service results to the http response.
-type WitchAPIRouter interface { 
+type WitchAPIRouter interface {
 	WitchesList(http.ResponseWriter, *http.Request)
 	GetWitch(http.ResponseWriter, *http.Request)
 	GetWitchById(http.ResponseWriter, *http.Request)
@@ -48,25 +48,23 @@ type WitchAPIRouter interface {
 	DeleteWitch(http.ResponseWriter, *http.Request)
 }
 
-
 // IngredientAPIServicer defines the api actions for the IngredientAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type IngredientAPIServicer interface { 
+type IngredientAPIServicer interface {
 	IngredientsByName(context.Context, string, string) (ImplResponse, error)
 	IngredientsList(context.Context) (ImplResponse, error)
 	GetIngredientById(context.Context, string) (ImplResponse, error)
 	UpdateIngredient(context.Context, string, Ingredient) (ImplResponse, error)
-	DeleteIngredient(context.Context, int64) (ImplResponse, error)
+	DeleteIngredient(context.Context, string) (ImplResponse, error)
 }
-
 
 // RecipeAPIServicer defines the api actions for the RecipeAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type RecipeAPIServicer interface { 
+type RecipeAPIServicer interface {
 	RecipesList(context.Context) (ImplResponse, error)
 	GetRecipe(context.Context, string, string) (ImplResponse, error)
 	GetRecipeById(context.Context, string) (ImplResponse, error)
@@ -74,12 +72,11 @@ type RecipeAPIServicer interface {
 	DeleteRecipe(context.Context, int64) (ImplResponse, error)
 }
 
-
 // WitchAPIServicer defines the api actions for the WitchAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type WitchAPIServicer interface { 
+type WitchAPIServicer interface {
 	WitchesList(context.Context) (ImplResponse, error)
 	GetWitch(context.Context, string, string) (ImplResponse, error)
 	GetWitchById(context.Context, string) (ImplResponse, error)
