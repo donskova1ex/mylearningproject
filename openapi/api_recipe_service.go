@@ -24,26 +24,26 @@ import (
 // RecipeAPIService is a service that implements the logic for the RecipeAPIServicer
 // This service should implement the business logic for every endpoint for the RecipeAPI API.
 // Include any external packages or services that will be required by this service.
-type RecipesProcessor interface{
+type RecipesProcessor interface {
 	RecipesList(ctx context.Context) ([]*domain.Recipe, error)
 	RecipeByID(ctx context.Context, uuid string) (*domain.Recipe, error)
-	DeleteRecipeByID(ctx context.Context, uuid string) error 
+	DeleteRecipeByID(ctx context.Context, uuid string) error
 }
 
 type RecipeAPIService struct {
 	recipesProcessor RecipesProcessor
-	log *slog.Logger
+	log              *slog.Logger
 }
 
 // NewRecipeAPIService creates a default api service
-func NewRecipeAPIService(recipesProcessor RecipesProcessor,log *slog.Logger) *RecipeAPIService {
-	return &RecipeAPIService{recipesProcessor : recipesProcessor, log : log}
+func NewRecipeAPIService(recipesProcessor RecipesProcessor, log *slog.Logger) *RecipeAPIService {
+	return &RecipeAPIService{recipesProcessor: recipesProcessor, log: log}
 }
 
 // RecipesList - recipes list
 func (s *RecipeAPIService) RecipesList(ctx context.Context) (ImplResponse, error) {
 	recipes, err := s.recipesProcessor.RecipesList(ctx)
-	if err != nil {
+	if errors.Is(err, internal.ErrReadRows()) {
 		return Response(http.StatusInternalServerError, nil), err
 	}
 	openApiRecipes := domainRecipesToOpenApi(recipes)
@@ -57,17 +57,13 @@ func domainRecipesToOpenApi(domainRecipes []*domain.Recipe) []Recipe {
 	recipes := make([]Recipe, 0, len(domainRecipes))
 	for _, recipe := range domainRecipes {
 		recipes = append(recipes, Recipe{
-			Id: recipe.UUID,
-			Name: recipe.Name,
+			Id:              recipe.UUID,
+			Name:            recipe.Name,
 			BrewTimeSeconds: recipe.BrewTimeSeconds,
 		})
 	}
 	return recipes
 }
-
-// func domainRecepiesToOpenApi(domainRecepies []*domain.Recipe) []*Recipe { //почему-то нет в ингредиентах, но есть в рецептах
-// return nil
-// }
 
 // GetRecipe - Find recipe by paramets
 func (s *RecipeAPIService) GetRecipe(ctx context.Context, id string, name string) (ImplResponse, error) {
@@ -92,15 +88,15 @@ func (s *RecipeAPIService) GetRecipeById(ctx context.Context, uuid string) (Impl
 		return Response(http.StatusBadRequest, nil), errors.New("uuid is required")
 	}
 	recipe, err := s.recipesProcessor.RecipeByID(ctx, uuid)
-	if errors.Is(err, internal.ErrRecipeNotFound) {
+	if errors.Is(err, internal.ErrEntityNotFound()) {
 		return Response(http.StatusNotFound, nil), err
 	}
-	if err != nil {
+	if errors.Is(err, internal.ErrEntityGetByUUID()) {
 		return Response(http.StatusInternalServerError, nil), err
 	}
 	openApiRecipe := Recipe{
-		Id: recipe.UUID,
-		Name: recipe.Name,
+		Id:              recipe.UUID,
+		Name:            recipe.Name,
 		BrewTimeSeconds: recipe.BrewTimeSeconds,
 	}
 	return Response(http.StatusOK, openApiRecipe), nil
@@ -128,8 +124,8 @@ func (s *RecipeAPIService) UpdateRecipeWithForm(ctx context.Context, id string, 
 
 // DeleteRecipe - Delete recipe
 func (s *RecipeAPIService) DeleteRecipe(ctx context.Context, uuid string) (ImplResponse, error) {
-	if err := s.recipesProcessor.DeleteRecipeByID(ctx, uuid); err != nil {
+	if err := s.recipesProcessor.DeleteRecipeByID(ctx, uuid); errors.Is(err, internal.ErrEntityNotFound()) {
 		return Response(http.StatusInternalServerError, nil), err
 	}
-	return Response(http.StatusOK, fmt.Sprintf("recipe with uuid: %s, deleted", uuid)), nil //TODO: Обернуть удаление, что бы возвращалось боди опрееленного формата 
+	return Response(http.StatusOK, fmt.Sprintf("recipe with uuid: %s, deleted", uuid)), nil //TODO: Обернуть удаление, что бы возвращалось боди опрееленного формата
 }
