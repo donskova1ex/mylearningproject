@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/donskova1ex/mylearningproject/internal"
 
 	"github.com/donskova1ex/mylearningproject/internal/domain"
 	"github.com/google/uuid"
@@ -47,7 +48,7 @@ func (i *IngredientsPostgres) IngredientsAll(ctx context.Context) ([]*domain.Ing
 		return ingredients, nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("can not read rows: %w", err)
+		return nil, fmt.Errorf("can not read rows: %w", internal.ErrReadRows)
 	}
 	return ingredients, nil
 }
@@ -57,27 +58,34 @@ func (i *IngredientsPostgres) IngredientByUUID(ctx context.Context, uuid string)
 	query := "SELECT id, name, uuid FROM ingredients WHERE uuid = $1"
 	err := i.db.GetContext(ctx, ingredient, query, uuid)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("ingredient with UUID: %s not found: %w", uuid, err)
+		return nil, fmt.Errorf("%w with uuid [%s]", internal.ErrNotFound, uuid)
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("can not get ingredient by uuid: %s. %w", uuid, err)
+		return nil, fmt.Errorf("%w with uuid [%s]", internal.ErrReadRows, uuid)
 	}
 	return ingredient, nil
 }
 
 func (i *IngredientsPostgres) DeleteIngredientByUUID(ctx context.Context, uuid string) error {
-	_, err := i.db.ExecContext(ctx, "DELETE FROM ingredients WHERE uuid = $1", uuid)
-
+	result, err := i.db.ExecContext(ctx, "DELETE FROM ingredients WHERE uuid = $1", uuid)
 	if err != nil {
-		return fmt.Errorf("there is no object with this ID: %w", err)
+		return fmt.Errorf("%w with uuid [%s]", internal.ErrGetByUUID, uuid)
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("%w with uuid [%s]", internal.ErrReadRows, uuid)
+	}
+
+	if rows == 0 {
+		return fmt.Errorf("%w with uuid [%s]", internal.ErrNotDelete, uuid)
 	}
 	return nil
 }
 
 func (i *IngredientsPostgres) UpdateIngredientByUUID(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error) {
 	query := "UPDATE ingredients SET name = $1 WHERE uuid = $2"
-	_, err := i.db.Exec(query, ingredient.Name, ingredient.UUID)
+	_, err := i.db.ExecContext(ctx, query, ingredient.Name, ingredient.UUID)
 	if err != nil {
 		return nil, fmt.Errorf("there is no object with this ID: %w", err)
 	}

@@ -88,7 +88,7 @@ func (s *RecipeAPIService) GetRecipeById(ctx context.Context, uuid string) (Impl
 		return Response(http.StatusBadRequest, nil), errors.New("uuid is required")
 	}
 	recipe, err := s.recipesProcessor.RecipeByID(ctx, uuid)
-	if errors.Is(err, internal.ErrEntityNotFound) {
+	if errors.Is(err, internal.ErrNotFound) {
 		return Response(http.StatusNotFound, nil), err
 	}
 	if errors.Is(err, internal.ErrReadRows) {
@@ -124,8 +124,16 @@ func (s *RecipeAPIService) UpdateRecipeWithForm(ctx context.Context, id string, 
 
 // DeleteRecipe - Delete recipe
 func (s *RecipeAPIService) DeleteRecipe(ctx context.Context, uuid string) (ImplResponse, error) {
-	if err := s.recipesProcessor.DeleteRecipeByID(ctx, uuid); errors.Is(err, internal.ErrEntityNotFound) {
+	err := s.recipesProcessor.DeleteRecipeByID(ctx, uuid)
+
+	if errors.Is(err, internal.ErrGetByUUID) {
+		return Response(http.StatusBadRequest, nil), err
+	}
+	if errors.Is(err, internal.ErrReadRows) {
 		return Response(http.StatusInternalServerError, nil), err
+	}
+	if errors.Is(err, internal.ErrNotDelete) {
+		return Response(http.StatusBadRequest, nil), err
 	}
 	return Response(http.StatusOK, fmt.Sprintf("recipe with uuid: %s, deleted", uuid)), nil //TODO: Обернуть удаление, что бы возвращалось боди опрееленного формата
 }
