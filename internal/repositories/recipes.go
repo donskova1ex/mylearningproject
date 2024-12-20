@@ -52,7 +52,7 @@ func (r *RecipesPostgres) RecipesAll(ctx context.Context) ([]*domain.Recipe, err
 		return recipes, nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("can not read rows: %w", internal.ErrReadRows())
+		return nil, fmt.Errorf("can not read rows: %w", internal.ErrReadRows)
 	}
 	return recipes, nil
 }
@@ -62,10 +62,10 @@ func (r *RecipesPostgres) RecipeByUUID(ctx context.Context, uuid string) (*domai
 	query := "SELECT uuid, id, name, brew_time_seconds FROM recipes WHERE uuid = $1"
 	err := r.db.GetContext(ctx, recipe, query, uuid)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("%w with uuid [%s]", internal.ErrEntityNotFound(), uuid) // TODO: придумать как сделать прим. так же
+		return nil, fmt.Errorf("%w with uuid [%s]", internal.ErrEntityNotFound, uuid) // TODO: придумать как сделать прим. так же
 	}
 	if err != nil {
-		return nil, fmt.Errorf("%w by uuid: [%s]", internal.ErrReadRows(), uuid)
+		return nil, fmt.Errorf("%w by uuid: [%s]", internal.ErrReadRows, uuid)
 	}
 	return recipe, nil
 }
@@ -73,13 +73,14 @@ func (r *RecipesPostgres) RecipeByUUID(ctx context.Context, uuid string) (*domai
 func (r *RecipesPostgres) DeleteRecipeByUUID(ctx context.Context, uuid string) error {
 	_, err := r.db.ExecContext(ctx, "DELETE FROM recipes WHERE uuid = $1", uuid)
 
-	if errors.Is(err, internal.ErrEntityNotFound()) {
-		return fmt.Errorf("%w with uuid [%s]", internal.ErrEntityNotFound(), uuid)
+	if errors.Is(err, internal.ErrEntityNotFound) {
+		return fmt.Errorf("%w with uuid [%s]", internal.ErrEntityNotFound, uuid)
 	}
 	return nil
 }
 
 func (r *RecipesPostgres) UpdateRecipeByUUID(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
+
 	query := "UPDATE recipes SET name = $1, brew_time_seconds = $2 WHERE uuid = $3"
 	_, err := r.db.Exec(query, recipe.Name, recipe.BrewTimeSeconds, recipe.UUID)
 	if err != nil {
