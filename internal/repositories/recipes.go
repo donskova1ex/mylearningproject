@@ -65,7 +65,7 @@ func (r *RecipesPostgres) RecipeByUUID(ctx context.Context, uuid string) (*domai
 		return nil, fmt.Errorf("%w with uuid [%s]", internal.ErrEntityNotFound(), uuid) // TODO: придумать как сделать прим. так же
 	}
 	if err != nil {
-		return nil, fmt.Errorf("%w by uuid: [%s]", internal.ErrEntityGetByUUID(), uuid)
+		return nil, fmt.Errorf("%w by uuid: [%s]", internal.ErrReadRows(), uuid)
 	}
 	return recipe, nil
 }

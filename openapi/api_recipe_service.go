@@ -91,7 +91,7 @@ func (s *RecipeAPIService) GetRecipeById(ctx context.Context, uuid string) (Impl
 	if errors.Is(err, internal.ErrEntityNotFound()) {
 		return Response(http.StatusNotFound, nil), err
 	}
-	if errors.Is(err, internal.ErrEntityGetByUUID()) {
+	if errors.Is(err, internal.ErrReadRows()) {
 		return Response(http.StatusInternalServerError, nil), err
 	}
 	openApiRecipe := Recipe{
