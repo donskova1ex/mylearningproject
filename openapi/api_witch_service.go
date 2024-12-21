@@ -14,6 +14,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/donskova1ex/mylearningproject/internal"
 	"log/slog"
 	"net/http"
 
@@ -42,7 +43,7 @@ func NewWitchAPIService(witchesProcessor WitchesProcessor, log *slog.Logger) *Wi
 // WitchesList - witches list
 func (s *WitchAPIService) WitchesList(ctx context.Context) (ImplResponse, error) {
 	witches, err := s.witchesProcessor.WitchesList(ctx)
-	if err != nil {
+	if errors.Is(err, internal.ErrReadRows) {
 		return Response(http.StatusInternalServerError, nil), err
 	}
 	openApiWitches := domainWitchesToOpenAPI(witches)
@@ -85,8 +86,13 @@ func (s *WitchAPIService) GetWitchById(ctx context.Context, uuid string) (ImplRe
 	if uuid == "" {
 		return Response(http.StatusBadRequest, nil), errors.New("uuid is required")
 	}
+
 	witch, err := s.witchesProcessor.WitchByID(ctx, uuid)
-	if err != nil {
+
+	if errors.Is(err, internal.ErrNotFound) {
+		return Response(http.StatusBadRequest, nil), err
+	}
+	if errors.Is(err, internal.ErrReadRows) {
 		return Response(http.StatusInternalServerError, nil), err
 	}
 	openApiWitch := Witch{
@@ -119,7 +125,7 @@ func (s *WitchAPIService) UpdateWitchWithForm(ctx context.Context, id string) (I
 // DeleteWitch - Deletes a witch
 func (s *WitchAPIService) DeleteWitch(ctx context.Context, uuid string) (ImplResponse, error) {
 	if err := s.witchesProcessor.DeleteWitchByID(ctx, uuid); err != nil {
-		return Response(http.StatusInternalServerError, nil), err
+		return Response(http.StatusBadRequest, nil), err
 	}
 	return Response(http.StatusOK, fmt.Sprintf("witch with uuid: %s, deleted", uuid)), nil
 }

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/donskova1ex/mylearningproject/internal"
 
 	"github.com/donskova1ex/mylearningproject/internal/domain"
 	"github.com/google/uuid"
@@ -43,14 +44,14 @@ func (w *WitchesPostgres) CreateWitch(ctx context.Context, witch *domain.Witch) 
 
 func (w *WitchesPostgres) WitchesAll(ctx context.Context) ([]*domain.Witch, error) {
 	witches := []*domain.Witch{}
-	//rows, err := w.db.Queryx("SELECT uuid, id, name FROM witches")
+
 	err := w.db.SelectContext(ctx, &witches, "SELECT uuid, id, name FROM witches")
 	if errors.Is(err, sql.ErrNoRows) {
 		return witches, nil
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("can not read rows: %w", err)
+		return nil, fmt.Errorf("can not read rows: %w", internal.ErrReadRows)
 	}
 	return witches, nil
 }
@@ -60,11 +61,11 @@ func (w *WitchesPostgres) WitchByUUID(ctx context.Context, uuid string) (*domain
 	query := "SELECT id, name, uuid FROM witches WHERE uuid = $1"
 	err := w.db.GetContext(ctx, witch, query, uuid)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("witch with UUID: %s not found: %w", uuid, err)
+		return nil, fmt.Errorf("%w with uuid [%s]", internal.ErrNotFound, uuid)
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("can not get witch by uuid: %s. %w", uuid, err)
+		return nil, fmt.Errorf("%w with uuid [%s]", internal.ErrReadRows, uuid)
 	}
 
 	return witch, nil
@@ -82,7 +83,7 @@ func (w *WitchesPostgres) UpdateWitchByUUID(ctx context.Context, witch *domain.W
 	query := "UPDATE witches SET name = $1 WHERE uuid = $2"
 	_, err := w.db.Exec(query, witch.Name, witch.UUID)
 	if err != nil {
-		return nil, fmt.Errorf("there is no object with this ID: %w", err)
+		return nil, fmt.Errorf("there is no object with this ID: %w", err) // TODO: Уточнить вопрос,пример в ingredients
 	}
 	return witch, nil
 }

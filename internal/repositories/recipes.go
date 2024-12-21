@@ -45,7 +45,7 @@ func (r *RecipesPostgres) CreateRecipe(ctx context.Context, recipe *domain.Recip
 }
 
 func (r *RecipesPostgres) RecipesAll(ctx context.Context) ([]*domain.Recipe, error) {
-	recipes := []*domain.Recipe{}
+	var recipes []*domain.Recipe
 
 	err := r.db.SelectContext(ctx, &recipes, "SELECT uuid, id, name, brew_time_seconds FROM recipes")
 	if errors.Is(err, sql.ErrNoRows) {

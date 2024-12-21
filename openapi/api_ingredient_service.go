@@ -14,6 +14,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/donskova1ex/mylearningproject/internal"
 	"log/slog"
 	"net/http"
 
@@ -56,7 +57,7 @@ func (s *IngredientAPIService) IngredientsByName(ctx context.Context, name strin
 // IngredientsList - Ingredients list
 func (s *IngredientAPIService) IngredientsList(ctx context.Context) (ImplResponse, error) {
 	ingredients, err := s.ingredientsProcessor.IngredientsList(ctx)
-	if err != nil {
+	if errors.Is(err, internal.ErrReadRows) {
 		return Response(http.StatusInternalServerError, nil), err
 	}
 
@@ -83,8 +84,11 @@ func (s *IngredientAPIService) GetIngredientById(ctx context.Context, uuid strin
 		return Response(http.StatusBadRequest, nil), errors.New("uuid is required")
 	}
 	ingredient, err := s.ingredientsProcessor.IngredientByID(ctx, uuid)
-	if err != nil {
-		return Response(http.StatusInternalServerError, nil), err
+	if errors.Is(err, internal.ErrNotFound) {
+		return Response(http.StatusNotFound, nil), err
+	}
+	if errors.Is(err, internal.ErrReadRows) {
+		return Response(http.StatusBadRequest, nil), err
 	}
 	openApiIngredient := Ingredient{
 		Id:   ingredient.UUID,
