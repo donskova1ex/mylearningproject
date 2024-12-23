@@ -62,7 +62,7 @@ func (r *RecipesPostgres) RecipeByUUID(ctx context.Context, uuid string) (*domai
 	query := "SELECT uuid, id, name, brew_time_seconds FROM recipes WHERE uuid = $1"
 	err := r.db.GetContext(ctx, recipe, query, uuid)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("%w with uuid [%s]", internal.ErrNotFound, uuid) // TODO: придумать как сделать прим. так же
+		return nil, fmt.Errorf("%w with uuid [%s]", internal.ErrNotFound, uuid)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("%w by uuid: [%s]", internal.ErrReadRows, uuid)

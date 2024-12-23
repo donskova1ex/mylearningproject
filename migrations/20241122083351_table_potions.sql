@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 --SELECT 'up SQL query';
-CREATE TABLE IF NOT EXISTS potions ( --TODO: domain, repository, processor 
+CREATE TABLE IF NOT EXISTS potions (
   uuid VARCHAR(36) PRIMARY KEY,
   witch_uuid VARCHAR REFERENCES witches(uuid), 
   recipe_uuid VARCHAR REFERENCES recipes(uuid),
