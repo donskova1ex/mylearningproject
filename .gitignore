@@ -1,3 +1,7 @@
 .openapi-generator/
 
 bin/
+.idea/vcs.xml
+.idea/mylearningproject.iml
+.idea/modules.xml
+.idea/.gitignore
