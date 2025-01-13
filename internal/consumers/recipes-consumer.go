@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-// TODO: проверить
+// TODO: проверить и задать вопросы
 type RecipesConsumer struct {
 	ready chan bool
 }
@@ -15,7 +15,6 @@ func NewRecipesConsumer() *RecipesConsumer {
 		ready: make(chan bool),
 	}
 }
-
 func (c *RecipesConsumer) Setup(sarama.ConsumerGroupSession) error {
 	close(c.ready)
 	return nil
@@ -34,6 +33,8 @@ func (c *RecipesConsumer) ConsumeClaim(session sarama.ConsumerGroupSession, clai
 			}
 			log.Printf("Consumer kafka message: %s\n", message.Value)
 			session.MarkMessage(message, "read")
+			//saving message
+			session.Commit()
 		case <-session.Context().Done():
 			return nil
 		}
