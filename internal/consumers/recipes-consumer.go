@@ -1,8 +1,9 @@
 package consumers
 
 import (
-	"github.com/IBM/sarama"
 	"log"
+
+	"github.com/IBM/sarama"
 )
 
 // TODO: проверить и задать вопросы
