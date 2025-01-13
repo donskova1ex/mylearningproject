@@ -2,35 +2,55 @@ package consumers
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"os/signal"
-	"strings"
 	"sync"
 	"syscall"
 
 	"github.com/IBM/sarama"
-	"github.com/donskova1ex/mylearningproject/internal"
 )
 
 // TODO: разобрать
+type ConsumerGroup struct {
+	consumer sarama.ConsumerGroupHandler
+	group    string
+	brokers  []string
+	topic    string
+	logger   *slog.Logger
+}
 
-func main() {
+func NewConsumerGroup(
+	consumer sarama.ConsumerGroupHandler,
+	group string,
+	topic string,
+	brokers []string,
+	logger *slog.Logger,
+) *ConsumerGroup {
+	return &ConsumerGroup{
+		consumer: consumer,
+		group:    group,
+		topic:    topic,
+		brokers:  brokers,
+		logger:   logger,
+	}
+}
+
+func (cg *ConsumerGroup) Run(ctx context.Context) error {
+
 	keepRunning := true
-	recipeConsumer := NewRecipesConsumer()
-	group := internal.KafkaRecipesConsumerGroup
-	brokers := os.Getenv("KAFKA_BROKERS")
-	topics := internal.KafkaTopicCreateRecipes
 
 	config := sarama.NewConfig()
-	config.Version = sarama.DefaultVersion
-	config.Consumer.Return.Errors = true
+	//config.Consumer.Return.Errors = true
 	config.Consumer.Offsets.Initial = sarama.OffsetOldest
 
-	ctx, cancel := context.WithCancel(context.Background())
-	client, err := sarama.NewConsumerGroup(strings.Split(brokers, ","), group, config)
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	client, err := sarama.NewConsumerGroup(cg.brokers, cg.group, config)
 	if err != nil {
-		log.Panicf("Error creating consumer group client: %v", err)
+		return fmt.Errorf("error creating consumer group client: %w", err) //TODO: обернуть в ошибку нормальную
 	}
 
 	wg := &sync.WaitGroup{}
@@ -38,34 +58,33 @@ func main() {
 	go func() {
 		defer wg.Done()
 		for {
-			if err := client.Consume(ctx, []string{topics}, recipeConsumer); err != nil { //
-				log.Panicf("Error consuming messages: %v", err)
+			if err := client.Consume(ctx, []string{cg.topic}, cg.consumer); err != nil { //
+				cg.logger.Error("error consuming messages", slog.String("err", err.Error()))
 			}
 			if ctx.Err() != nil {
 				return
 			}
-			recipeConsumer.ready = make(chan bool)
 		}
 	}()
-	<-recipeConsumer.ready
-	log.Println("Consumer up and ready")
+	log.Println("Consumer up and ready") //TODO:поменять на свой логгер
 
 	for keepRunning {
 		sigterm := make(chan os.Signal, 1)
 		signal.Notify(sigterm, syscall.SIGINT, syscall.SIGTERM)
 		select {
 		case <-sigterm:
-			log.Println("terminating: via signal")
+			log.Println("terminating: via signal") //TODO:свой логгер
 			keepRunning = false
 		case <-ctx.Done():
-			log.Println("terminating: context cancelled")
+			log.Println("terminating: context cancelled") //TODO:свой логгер
 			keepRunning = false
 		}
 	}
 	cancel()
 	wg.Wait()
 	if err = client.Close(); err != nil {
-		log.Panicf("Error cloasing client: %v", err)
+		log.Panicf("Error cloasing client: %v", err) //TODO: свой логгер, уровень "err"
 	}
+	return nil
 
 }

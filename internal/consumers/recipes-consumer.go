@@ -8,22 +8,19 @@ import (
 
 // TODO: проверить и задать вопросы
 type RecipesConsumer struct {
-	ready chan bool
 }
 
 func NewRecipesConsumer() *RecipesConsumer {
-	return &RecipesConsumer{
-		ready: make(chan bool),
-	}
+	return &RecipesConsumer{}
 }
 func (c *RecipesConsumer) Setup(sarama.ConsumerGroupSession) error {
-	close(c.ready)
 	return nil
 }
 func (c *RecipesConsumer) Cleanup(sarama.ConsumerGroupSession) error {
 	return nil
 }
 
+// TODO: прокинуть свой логгер
 func (c *RecipesConsumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for {
 		select {
@@ -33,8 +30,10 @@ func (c *RecipesConsumer) ConsumeClaim(session sarama.ConsumerGroupSession, clai
 				return nil
 			}
 			log.Printf("Consumer kafka message: %s\n", message.Value)
+			//saving message прокинуть процессор проверка на корректность обработки.
+			//Будет пытаться вычитать до бесконечности, пока сообщение не будет вычитано
+			//retry  при вычитвании сообщения.
 			session.MarkMessage(message, "read")
-			//saving message
 			session.Commit()
 		case <-session.Context().Done():
 			return nil
