@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/donskova1ex/mylearningproject/internal"
 
 	"github.com/donskova1ex/mylearningproject/internal/domain"
@@ -24,6 +25,7 @@ func (i *IngredientsPostgres) CreateIngredient(ctx context.Context, ingredient *
 	var id uint32
 
 	query := "INSERT INTO ingredients (name, uuid) values ($1, $2) RETURNING id"
+	//TODO: проверка на дубли
 	newUUID := uuid.NewString()
 	row := i.db.QueryRowContext(ctx, query, ingredient.Name, newUUID)
 	err := row.Err()

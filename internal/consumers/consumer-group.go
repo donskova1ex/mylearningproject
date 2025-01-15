@@ -10,7 +10,6 @@ import (
 	"syscall"
 
 	"github.com/IBM/sarama"
-	"github.com/donskova1ex/mylearningproject/internal"
 )
 
 type ConsumerGroup struct {
@@ -48,8 +47,7 @@ func (cg *ConsumerGroup) Run(ctx context.Context) error {
 	defer cancel()
 	client, err := sarama.NewConsumerGroup(cg.brokers, cg.group, config)
 	if err != nil {
-		cg.logger.Error("error creating consumer group client", slog.String("err", err.Error()))
-		return fmt.Errorf("error creating consumer group client: %w", internal.ErrCreateConsumerGroup) //TODO: обернуть в ошибку нормальную
+		return fmt.Errorf("error creating consumer group client: %w", err)
 	}
 
 	wg := &sync.WaitGroup{}
@@ -66,25 +64,24 @@ func (cg *ConsumerGroup) Run(ctx context.Context) error {
 			}
 		}
 	}()
-	cg.logger.Info("Consumer up and ready", slog.String("info", "Consumer up and ready")) //TODO:поменять на свой логгер
+	cg.logger.Info("Consumer up and ready")
 
 	for keepRunning {
 		sigterm := make(chan os.Signal, 1)
 		signal.Notify(sigterm, syscall.SIGINT, syscall.SIGTERM)
 		select {
 		case <-sigterm:
-			cg.logger.Info("terminating: via signal", slog.String("info", "terminating: via signal"))
+			cg.logger.Info("terminating: via signal")
 			keepRunning = false
 		case <-ctx.Done():
-			cg.logger.Info("terminating: context cancelled", slog.String("info", "terminating: context cancelled"))
+			cg.logger.Info("terminating: context cancelled")
 			keepRunning = false
 		}
 	}
 	cancel()
 	wg.Wait()
 	if err = client.Close(); err != nil {
-		cg.logger.Error("error cloasing client: %w", slog.String("err", err.Error()))
-		return fmt.Errorf("error closing consumer group client: %w", internal.ErrClosingCosumerGroupClient)
+		return fmt.Errorf("error closing consumer group client: %w", err)
 	}
 	return nil
 
