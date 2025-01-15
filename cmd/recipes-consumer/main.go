@@ -1,22 +1,31 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"os"
+	"strings"
 
 	"github.com/donskova1ex/mylearningproject/internal"
 	"github.com/donskova1ex/mylearningproject/internal/consumers"
 )
 
 func main() {
-	// TODO: прочитать энв и т.д., создать косьюмер, косьюмер группу, вызвать ран
 
 	logJSONHandler := slog.NewJSONHandler(os.Stdout, nil)
 	logger := slog.New(logJSONHandler)
 	logger.Info("application started")
 	slog.SetDefault(logger)
 
-	brokers := os.Getenv("KAFKA_BROKERS")
+	brokers := strings.Split(os.Getenv("KAFKA_BROKERS"), ",")
 	groupId := internal.KafkaRecipesConsumerGroup
-	recipeConsumer := consumers.NewRecipesConsumer()
+	topic := internal.KafkaTopicCreateRecipes
+
+	consumer := consumers.NewRecipesConsumer()
+	consumerGroup := consumers.NewConsumerGroup(consumer, groupId, topic, brokers, logger)
+
+	consumerGroup.Run(
+		context.Background(),
+	)
+
 }
