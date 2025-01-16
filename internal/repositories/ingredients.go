@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/lib/pq"
 
 	"github.com/donskova1ex/mylearningproject/internal"
 
@@ -23,13 +24,22 @@ func NewIngredientPostgres(db *sqlx.DB) *IngredientsPostgres {
 
 func (i *IngredientsPostgres) CreateIngredient(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error) {
 	var id uint32
+	var pqErr *pq.Error
 
 	query := "INSERT INTO ingredients (name, uuid) values ($1, $2) RETURNING id"
-	//TODO: проверка на дубли
+	//TODO: Обсудить проверку на дубли
 	newUUID := uuid.NewString()
 	row := i.db.QueryRowContext(ctx, query, ingredient.Name, newUUID)
 	err := row.Err()
 	if err != nil {
+		if errors.As(err, &pqErr) {
+			if pqErr.Constraint == "ingredients_uuid_key" {
+				return nil, fmt.Errorf("this uuid  is already in use: %w", err)
+			}
+			if pqErr.Constraint == "ingredients_name_key" {
+				return nil, fmt.Errorf("this name ingredient is already in use: %w", err)
+			}
+		}
 		return nil, fmt.Errorf("can not read ingredient from db: %w", err)
 	}
 	if err := row.Scan(&id); err != nil {
