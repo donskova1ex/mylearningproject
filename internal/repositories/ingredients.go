@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/lib/pq"
 
 	"github.com/donskova1ex/mylearningproject/internal"
@@ -26,14 +27,7 @@ func (i *IngredientsPostgres) CreateIngredient(ctx context.Context, ingredient *
 	var id uint32
 	var pqErr *pq.Error
 
-	query := "INSERT INTO ingredients (name, uuid) values ($1, $2) on conflict on constraint "ingredients_name_key" RETURNING id"
-	`
-    insert into
-    select values
-    on conflict on constraint "..."
-    do nothing
-    returning id
-`
+	query := `INSERT INTO ingredients (name, uuid) values ($1, $2) on conflict on constraint ingredients_name_key RETURNING id`
 	//TODO: Обсудить проверку на дубли
 	newUUID := uuid.NewString()
 	row := i.db.QueryRowContext(ctx, query, ingredient.Name, newUUID)

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"os"
 	"os/signal"
 	"sync"
 	"syscall"
@@ -38,8 +37,7 @@ func NewConsumerGroup(
 
 func (cg *ConsumerGroup) Run(ctx context.Context) error {
 
-	keepRunning := true
-
+	//TODO: вытащить конфиг во внешку, что бы было универсально для всего
 	config := sarama.NewConfig()
 	config.Consumer.Offsets.Initial = sarama.OffsetOldest
 
@@ -66,18 +64,12 @@ func (cg *ConsumerGroup) Run(ctx context.Context) error {
 	}()
 	cg.logger.Info("Consumer up and ready")
 
-	for keepRunning {
-		sigterm := make(chan os.Signal, 1)
-		signal.Notify(sigterm, syscall.SIGINT, syscall.SIGTERM)
-		select {
-		case <-sigterm:
-			cg.logger.Info("terminating: via signal")
-			keepRunning = false
-		case <-ctx.Done():
-			cg.logger.Info("terminating: context cancelled")
-			keepRunning = false
-		}
-	}
+	//signal.Notify(sigterm, syscall.SIGINT, syscall.SIGTERM)
+	signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
+
+	<-ctx.Done()
+	cg.logger.Info(ctx.Err().Error())
+
 	cancel()
 	wg.Wait()
 	if err = client.Close(); err != nil {
