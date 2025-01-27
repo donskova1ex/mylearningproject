@@ -2,7 +2,7 @@ include scripts/*.mk
 
 DEV_COMPOSE_ARGS=--env-file .env.dev -f docker-compose.dev.yaml
 DEV_COMPOSE_ENV=docker compose $(DEV_COMPOSE_ARGS)
-DEV_COMPOSE=docker compose --profile api $(DEV_COMPOSE_ARGS)
+DEV_COMPOSE=docker compose $(DEV_COMPOSE_ARGS)
 
 dev-build:
 	$(DEV_COMPOSE) build
@@ -33,3 +33,5 @@ build-kafka:
 
 build-zookeeper:
 	docker build -t zookeeper-jmx -f Dockerfile.zookeeper .
+dev-consumer-run:
+	go run cmd/recipes-consumer/main.go

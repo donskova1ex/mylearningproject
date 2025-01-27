@@ -13,7 +13,7 @@ import (
 func main() {
 	logJSONHandler := slog.NewJSONHandler(os.Stdout, nil)
 	logger := slog.New(logJSONHandler)
-	logger.Info("application started")
+
 	slog.SetDefault(logger)
 
 	pgDSN := os.Getenv("POSTGRES_DSN")
@@ -57,7 +57,7 @@ func main() {
 		ErrorLog: slog.NewLogLogger(logJSONHandler, slog.LevelError),
 		Handler:  router,
 	}
-
+	logger.Info("application started", slog.String("port", apiPort))
 	if err := httpServer.ListenAndServe(); err != nil {
 		logger.Error("failed to start server", slog.String("err", err.Error()))
 	}

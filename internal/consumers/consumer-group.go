@@ -76,10 +76,11 @@ func (cg *ConsumerGroup) Run(ctx context.Context) error {
 	cg.logger.Info("Consumer up and ready")
 
 	//signal.Notify(sigterm, syscall.SIGINT, syscall.SIGTERM)
-	signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
+	interruptCtx, interruptCancel := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
+	defer interruptCancel()
 
-	<-ctx.Done()
-	cg.logger.Info(ctx.Err().Error())
+	<-interruptCtx.Done()
+	cg.logger.Info("recived interrupt signal", slog.String("err", interruptCtx.Err().Error()))
 
 	cancel()
 	wg.Wait()
