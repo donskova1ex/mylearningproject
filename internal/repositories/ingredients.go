@@ -56,7 +56,7 @@ func (i *IngredientsPostgres) CreateIngredient(ctx context.Context, ingredient *
 
 func (i *IngredientsPostgres) IngredientsAll(ctx context.Context) ([]*domain.Ingredient, error) {
 	var ingredients []*domain.Ingredient
-	err := i.db.Select(&ingredients, "SELECT uuid, id, name FROM ingredients")
+	err := i.db.SelectContext(ctx, &ingredients, "SELECT uuid, id, name FROM ingredients")
 	if errors.Is(err, sql.ErrNoRows) {
 		return ingredients, nil
 	}
