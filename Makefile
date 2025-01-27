@@ -27,3 +27,9 @@ dev-migrate-down:
 
 dev-api-run:
 	go run cmd/api/api.go
+	
+build-kafka:
+	docker build -t kafka-jmx -f Dockerfile.kafka .
+
+build-zookeeper:
+	docker build -t zookeeper-jmx -f Dockerfile.zookeeper .
