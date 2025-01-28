@@ -33,5 +33,6 @@ build-kafka:
 
 build-zookeeper:
 	docker build -t zookeeper-jmx -f Dockerfile.zookeeper .
+
 dev-consumer-run:
 	go run cmd/recipes-consumer/main.go
