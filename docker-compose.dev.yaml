@@ -123,3 +123,15 @@ services:
       <<: *kafka_broker_env_base
       KAFKA_BROKER_ID: 3
       KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:39092,INTERNAL://kafka3:9092
+  consumer:
+    container_name: consumer
+    environment:
+      - 9092=9092
+      - KAFKA_BROKERS=${KAFKA_BROKERS}
+    image: donskova1ex/recipes-consumer:latest
+    profiles:
+      - api
+    ports:
+      - 9092:${CONSUMER_PORT}
+    depends_on:
+      - zookeeper

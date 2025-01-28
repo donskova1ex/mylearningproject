@@ -7,7 +7,7 @@ DEV_COMPOSE=docker compose $(DEV_COMPOSE_ARGS)
 dev-build:
 	$(DEV_COMPOSE) build
 
-dev-up: api_docker_build dev-build
+dev-up: api_docker_build consumer_docker_build dev-build
 	$(DEV_COMPOSE) up -d
 
 dev-up-env: dev-build
@@ -33,6 +33,3 @@ build-kafka:
 
 build-zookeeper:
 	docker build -t zookeeper-jmx -f Dockerfile.zookeeper .
-
-dev-consumer-run:
-	go run cmd/recipes-consumer/main.go

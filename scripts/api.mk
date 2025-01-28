@@ -1,7 +1,7 @@
 PROJECT?=github.com/donskova1ex/mylearningproject
 API_NAME?=api
-VERSION?=0.0.1
-CONTAINER_NAME?=docker.io/donskova1ex/${API_NAME}
+API_VERSION?=0.0.1
+API_CONTAINER_NAME?=docker.io/donskova1ex/${API_NAME}
 
 # for local uses
 api_local_build:
@@ -9,8 +9,8 @@ api_local_build:
 
 # docker
 api_docker_build:
-	docker build -t ${CONTAINER_NAME}:${VERSION} -t ${CONTAINER_NAME}:latest -f Dockerfile.api .
+	docker build -t ${API_CONTAINER_NAME}:${API_VERSION} -t ${API_CONTAINER_NAME}:latest -f Dockerfile.api .
 api_docker_push:
-	docker push ${CONTAINER_NAME}:${VERSION}
-	docker push ${CONTAINER_NAME}:latest
+	docker push ${API_CONTAINER_NAME}:${API_VERSION}
+	docker push ${API_CONTAINER_NAME}:latest
 api_docker_update: api_docker_build api_docker_push
