@@ -2,6 +2,7 @@ package processors
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 
@@ -81,4 +82,19 @@ func (rec *recipes) UpdateRecipeByID(ctx context.Context, recipe *domain.Recipe)
 		return nil, fmt.Errorf("can not update recipe: %s, error: %w", recipe.Name, err)
 	}
 	return r, nil
+}
+
+// TODO base insert
+func (rec *recipes) Save(ctx context.Context, body []byte) error {
+	recipe := &domain.Recipe{}
+	if err := json.Unmarshal(body, recipe); err != nil {
+		rec.log.Error(
+			"can not unmarshal recipe",
+			slog.String("err", err.Error()),
+			slog.String("value", string(body)),
+		)
+		return nil
+	}
+	fmt.Sprintf("%+v", *recipe)
+	return nil
 }

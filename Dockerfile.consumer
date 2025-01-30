@@ -13,5 +13,4 @@ ENV CGO_ENABLED=0
 #RUN go build -o openapi .
 RUN make consumer_local_build
 
-EXPOSE ${CONSUMER_PORT}
-ENTRYPOINT [ "/go/src/bin/consumer" ]
+ENTRYPOINT [ "/go/src/bin/recipes-consumer" ]

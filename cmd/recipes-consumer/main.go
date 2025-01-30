@@ -10,6 +10,8 @@ import (
 	"github.com/IBM/sarama"
 	"github.com/donskova1ex/mylearningproject/internal"
 	"github.com/donskova1ex/mylearningproject/internal/consumers"
+	"github.com/donskova1ex/mylearningproject/internal/processors"
+	"github.com/donskova1ex/mylearningproject/internal/repositories"
 )
 
 func main() {
@@ -24,6 +26,22 @@ func main() {
 		os.Exit(1)
 	}
 
+	pgDSN := os.Getenv("POSTGRES_DSN")
+	if pgDSN == "" {
+		logger.Error("empty POSTGRES_DSN")
+		os.Exit(1)
+	}
+
+	db, err := repositories.NewPostgresDB(pgDSN)
+	if err != nil {
+		logger.Error("can not create postgres db connection", slog.String("error", err.Error()))
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewRepository(db)
+	recipesProcessor := processors.NewRecipe(repository, logger)
+
 	brokers := strings.Split(brokersEnv, ",")
 	groupId := internal.KafkaRecipesConsumerGroup
 	topic := internal.KafkaTopicCreateRecipes
@@ -33,7 +51,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	consumer := consumers.NewRecipesConsumer()
+	consumer := consumers.NewRecipesConsumer(recipesProcessor)
 	consumerGroup := consumers.NewConsumerGroup(consumer, groupId, topic, brokers, logger)
 
 	if err := consumerGroup.Run(context.Background()); err != nil {

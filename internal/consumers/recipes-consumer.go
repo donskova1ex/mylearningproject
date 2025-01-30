@@ -1,17 +1,23 @@
 package consumers
 
 import (
+	"context"
 	"log"
 
 	"github.com/IBM/sarama"
 )
 
 // TODO: проверить и задать вопросы
-type RecipesConsumer struct {
+type Saver interface {
+	Save(ctx context.Context, body []byte) error
 }
 
-func NewRecipesConsumer() *RecipesConsumer {
-	return &RecipesConsumer{}
+type RecipesConsumer struct {
+	saver Saver
+}
+
+func NewRecipesConsumer(saver Saver) *RecipesConsumer {
+	return &RecipesConsumer{saver}
 }
 func (c *RecipesConsumer) Setup(sarama.ConsumerGroupSession) error {
 	return nil
@@ -30,6 +36,9 @@ func (c *RecipesConsumer) ConsumeClaim(session sarama.ConsumerGroupSession, clai
 				return nil
 			}
 			log.Printf("Consumer kafka message: %s\n", string(message.Value))
+			if err := c.saver.Save(session.Context(), message.Value); err != nil {
+
+			}
 			//saving message прокинуть процессор проверка на корректность обработки.
 			//Будет пытаться вычитать до бесконечности, пока сообщение не будет вычитано
 			//retry  при вычитвании сообщения.

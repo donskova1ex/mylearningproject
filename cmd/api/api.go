@@ -23,7 +23,7 @@ func main() {
 	}
 
 	apiPort := os.Getenv("API_PORT")
-	if pgDSN == "" {
+	if apiPort == "" {
 		logger.Error("empty API_PORT")
 		os.Exit(1)
 	}
@@ -35,18 +35,17 @@ func main() {
 	}
 	defer db.Close()
 
-	ingredientRepository := repositories.NewIngredientPostgres(db)
-	ingProcessor := processors.NewIngredient(ingredientRepository, logger)
+	repository := repositories.NewRepository(db)
+
+	ingProcessor := processors.NewIngredient(repository, logger)
 	IngredientAPIService := openapi.NewIngredientAPIService(ingProcessor, logger)
 	IngredientAPIController := openapi.NewIngredientAPIController(IngredientAPIService)
 
-	recipeRepository := repositories.NewRecipePostgres(db)
-	recipeProcessor := processors.NewRecipe(recipeRepository, logger)
+	recipeProcessor := processors.NewRecipe(repository, logger)
 	RecipeAPIService := openapi.NewRecipeAPIService(recipeProcessor, logger)
 	RecipeAPIController := openapi.NewRecipeAPIController(RecipeAPIService)
 
-	witchRepository := repositories.NewWitchesPostgres(db)
-	witchProcessor := processors.NewWitch(witchRepository, logger)
+	witchProcessor := processors.NewWitch(repository, logger)
 	WitchAPIService := openapi.NewWitchAPIService(witchProcessor, logger)
 	WitchAPIController := openapi.NewWitchAPIController(WitchAPIService)
 

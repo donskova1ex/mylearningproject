@@ -126,12 +126,10 @@ services:
   consumer:
     container_name: consumer
     environment:
-      - 9092=9092
       - KAFKA_BROKERS=${KAFKA_BROKERS}
+      - POSTGRES_DSN=${POSTGRES_DSN}
     image: donskova1ex/recipes-consumer:latest
-    profiles:
-      - api
-    ports:
-      - 9092:${CONSUMER_PORT}
     depends_on:
-      - zookeeper
+      - kafka1
+      - kafka2
+      - kafka3
