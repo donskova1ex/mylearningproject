@@ -3,13 +3,14 @@ package consumers
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/IBM/sarama"
 )
 
 // TODO: проверить и задать вопросы
 type Saver interface {
-	Save(ctx context.Context, body []byte) error
+	Save(ctx context.Context, key []byte, body []byte, timeStamp time.Time) error
 }
 
 type RecipesConsumer struct {

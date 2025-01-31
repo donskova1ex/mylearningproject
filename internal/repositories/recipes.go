@@ -11,7 +11,15 @@ import (
 	"github.com/google/uuid"
 )
 
-func (r *Repository) CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
+func (r *Repository) CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*sql.Tx, error) {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, fmt.Errorf(err.Error())
+	}
+	defer tx.Rollback()
+}
+
+func (r *Repository) createRecipe(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
 	var id uint32
 
 	query := "INSERT INTO recipes (uuid, Name, BrewTimeSeconds) values ($1, $2, $3)RETURNING id"

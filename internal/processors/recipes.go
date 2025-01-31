@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/donskova1ex/mylearningproject/internal/domain"
 )
@@ -85,7 +86,7 @@ func (rec *recipes) UpdateRecipeByID(ctx context.Context, recipe *domain.Recipe)
 }
 
 // TODO base insert
-func (rec *recipes) Save(ctx context.Context, body []byte) error {
+func (rec *recipes) Save(ctx context.Context, key []byte, body []byte, timeStamp time.Time) error {
 	recipe := &domain.Recipe{}
 	if err := json.Unmarshal(body, recipe); err != nil {
 		rec.log.Error(
@@ -95,6 +96,7 @@ func (rec *recipes) Save(ctx context.Context, body []byte) error {
 		)
 		return nil
 	}
+
 	fmt.Sprintf("%+v", *recipe)
 	return nil
 }
