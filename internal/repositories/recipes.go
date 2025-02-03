@@ -8,12 +8,11 @@ import (
 	"github.com/donskova1ex/mylearningproject/internal"
 	"github.com/donskova1ex/mylearningproject/internal/domain"
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 )
 
 // TODO: проверить транзакции, если норм, то сделать аналогично во все запросы
 func (r *Repository) CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
-	tx, err := r.db.BeginTxx(ctx, nil)
+	tx, err := r.db.BeginTx(ctx, nil)
 
 	if err != nil {
 		return nil, fmt.Errorf("error start transaction: %w", internal.ErrRecipeTransaction)
@@ -34,7 +33,7 @@ func (r *Repository) CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*
 	return newRecipe, nil
 }
 
-func (r *Repository) createRecipe(ctx context.Context, tx *sqlx.Tx, recipe *domain.Recipe) (*domain.Recipe, error) {
+func (r *Repository) createRecipe(ctx context.Context, tx *sql.Tx, recipe *domain.Recipe) (*domain.Recipe, error) {
 	var id uint32
 
 	query := `INSERT INTO recipes (uuid, Name, BrewTimeSeconds) values ($1, $2, $3) 
