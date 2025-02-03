@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS recipes (
   uuid VARCHAR(36) unique,
   id SERIAL PRIMARY KEY,
-  name VARCHAR(64),
+  name VARCHAR(64) unique,
   brew_time_seconds INTEGER);
 -- +goose StatementEnd
 

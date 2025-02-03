@@ -16,6 +16,7 @@ type RecipesRepository interface {
 	RecipeByUUID(ctx context.Context, uuid string) (*domain.Recipe, error)
 	DeleteRecipeByUUID(ctx context.Context, uuid string) error
 	UpdateRecipeByUUID(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error)
+	CreateIngredient(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error)
 }
 
 type RecipesLogger interface {
@@ -97,6 +98,16 @@ func (rec *recipes) Save(ctx context.Context, key []byte, body []byte, timeStamp
 		return nil
 	}
 
-	fmt.Sprintf("%+v", *recipe)
+	//TODO: проверить создание
+	for _, ingredient := range recipe.Ingredients {
+		newIngredient := &domain.Ingredient{}
+		newIngredient.Name = ingredient
+		_, err := rec.recipesRepository.CreateIngredient(ctx, newIngredient)
+		if err != nil {
+			rec.log.Error("unable to create ingredient", err)
+		}
+	}
+
+	//fmt.Sprintf("%+v", *recipe)
 	return nil
 }

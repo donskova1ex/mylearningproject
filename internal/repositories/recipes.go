@@ -5,27 +5,43 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-
 	"github.com/donskova1ex/mylearningproject/internal"
 	"github.com/donskova1ex/mylearningproject/internal/domain"
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 )
 
-func (r *Repository) CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*sql.Tx, error) {
-	tx, err := r.db.BeginTx(ctx, nil)
+// TODO: проверить транзакции, если норм, то сделать аналогично во все запросы
+func (r *Repository) CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
+	tx, err := r.db.BeginTxx(ctx, nil)
+
 	if err != nil {
-		return nil, fmt.Errorf(err.Error())
+		return nil, fmt.Errorf("error start transaction: %w", internal.ErrRecipeTransaction)
 	}
-	defer tx.Rollback()
+	newRecipe, err := r.createRecipe(ctx, tx, recipe)
+	if err != nil {
+		rlErr := tx.Rollback()
+		if rlErr != nil {
+			return nil, fmt.Errorf("error rollbacking transaction: %w", internal.ErrRecipeRollback)
+		}
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, fmt.Errorf("error committing transaction: %w", internal.ErrRecipeTransaction)
+	}
+
+	return newRecipe, nil
 }
 
-func (r *Repository) createRecipe(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
+func (r *Repository) createRecipe(ctx context.Context, tx *sqlx.Tx, recipe *domain.Recipe) (*domain.Recipe, error) {
 	var id uint32
 
-	query := "INSERT INTO recipes (uuid, Name, BrewTimeSeconds) values ($1, $2, $3)RETURNING id"
+	query := `INSERT INTO recipes (uuid, Name, BrewTimeSeconds) values ($1, $2, $3) 
+				on conflict on constraint recipes_name_key RETURNING id`
 	newUUID := uuid.NewString()
 
-	row := r.db.QueryRow(query, newUUID, recipe.Name, recipe.BrewTimeSeconds)
+	row := tx.QueryRowContext(ctx, query, newUUID, recipe.Name, recipe.BrewTimeSeconds)
 	err := row.Err()
 	if err != nil {
 		return nil, fmt.Errorf("can not read recipe from db: %w", err)
@@ -40,6 +56,7 @@ func (r *Repository) createRecipe(ctx context.Context, recipe *domain.Recipe) (*
 		Name:            recipe.Name,
 		BrewTimeSeconds: recipe.BrewTimeSeconds,
 	}
+
 	return newRecipe, nil
 }
 
@@ -89,7 +106,7 @@ func (r *Repository) DeleteRecipeByUUID(ctx context.Context, uuid string) error 
 func (r *Repository) UpdateRecipeByUUID(ctx context.Context, recipe *domain.Recipe) (*domain.Recipe, error) {
 
 	query := "UPDATE recipes SET name = $1, brew_time_seconds = $2 WHERE uuid = $3"
-	_, err := r.db.Exec(query, recipe.Name, recipe.BrewTimeSeconds, recipe.UUID)
+	_, err := r.db.ExecContext(ctx, query, recipe.Name, recipe.BrewTimeSeconds, recipe.UUID)
 	if err != nil {
 		return nil, fmt.Errorf("there is no object with this ID: %w", err)
 	}

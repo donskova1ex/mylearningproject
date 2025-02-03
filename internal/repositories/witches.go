@@ -15,7 +15,7 @@ import (
 func (r *Repository) CreateWitch(ctx context.Context, witch *domain.Witch) (*domain.Witch, error) {
 	var id uint32
 
-	query := "INSERT INTO witches (uuid, name) values ($1, $2) RETURNING id"
+	query := "INSERT INTO witches (uuid, name) values ($1, $2) on conflict on constraint witches_name_key RETURNING id"
 
 	newUUID := uuid.NewString()
 	row := r.db.QueryRowContext(ctx, query, newUUID, witch.Name)

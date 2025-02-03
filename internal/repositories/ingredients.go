@@ -19,7 +19,6 @@ func (r *Repository) CreateIngredient(ctx context.Context, ingredient *domain.In
 	var pqErr *pq.Error
 
 	query := `INSERT INTO ingredients (name, uuid) values ($1, $2) on conflict on constraint ingredients_name_key RETURNING id`
-	//TODO: Обсудить проверку на дубли
 	newUUID := uuid.NewString()
 	row := r.db.QueryRowContext(ctx, query, ingredient.Name, newUUID)
 	err := row.Err()
