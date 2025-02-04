@@ -39,7 +39,7 @@ func main() {
 	}
 	defer db.Close()
 
-	repository := repositories.NewRepository(db)
+	repository := repositories.NewRepository(db, logger)
 	recipesProcessor := processors.NewRecipe(repository, logger)
 
 	brokers := strings.Split(brokersEnv, ",")

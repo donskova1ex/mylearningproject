@@ -5,6 +5,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
+	"log/slog"
+
 	"github.com/donskova1ex/mylearningproject/internal"
 	"github.com/donskova1ex/mylearningproject/internal/domain"
 	"github.com/google/uuid"
@@ -17,13 +20,19 @@ func (r *Repository) CreateRecipe(ctx context.Context, recipe *domain.Recipe) (*
 	if err != nil {
 		return nil, fmt.Errorf("error start transaction: %w", internal.ErrRecipeTransaction)
 	}
+	//TODO:
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			r.logger.Error("error rollbacking transaction", slog.String("err", err.Error()))
+			return
+		}
+	}()
+
+	ingredients, err := r.createIngredients(ctx, tx, recipe.Ingredients)
+
 	newRecipe, err := r.createRecipe(ctx, tx, recipe)
 	if err != nil {
-		rlErr := tx.Rollback()
-		if rlErr != nil {
-			return nil, fmt.Errorf("error rollbacking transaction: %w", internal.ErrRecipeRollback)
-		}
-		return nil, err
+		return nil, fmt.Errorf("error creating new recipe: %w", internal.ErrCreateRecipe)
 	}
 
 	if err := tx.Commit(); err != nil {

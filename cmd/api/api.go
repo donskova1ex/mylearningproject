@@ -35,7 +35,7 @@ func main() {
 	}
 	defer db.Close()
 
-	repository := repositories.NewRepository(db)
+	repository := repositories.NewRepository(db, logger)
 
 	ingProcessor := processors.NewIngredient(repository, logger)
 	IngredientAPIService := openapi.NewIngredientAPIService(ingProcessor, logger)

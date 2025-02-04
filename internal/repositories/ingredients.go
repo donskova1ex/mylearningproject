@@ -14,11 +14,16 @@ import (
 	"github.com/google/uuid"
 )
 
+func (r *Repository) createIngredients(ctx context.Context, tx *sql.Tx, ingredients []*domain.Ingredient) ([]*domain.Ingredient, error) {
+
+	return nil, nil
+}
+
 func (r *Repository) CreateIngredient(ctx context.Context, ingredient *domain.Ingredient) (*domain.Ingredient, error) {
 	var id uint32
 	var pqErr *pq.Error
-
-	query := `INSERT INTO ingredients (name, uuid) values ($1, $2) on conflict on constraint ingredients_name_key RETURNING id`
+	//TODO: проверить, что возвращает, по идее должен ИД
+	query := `INSERT INTO ingredients (name, uuid) values ($1, $2) on conflict on constraint ingredients_name_key do nothing RETURNING id`
 	newUUID := uuid.NewString()
 	row := r.db.QueryRowContext(ctx, query, ingredient.Name, newUUID)
 	err := row.Err()

@@ -409,6 +409,10 @@ components:
         brew_time_seconds:
           type: integer
           example: 160
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/ingredient'
     ingredient:
       required: 
         - id

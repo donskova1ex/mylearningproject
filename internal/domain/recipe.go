@@ -5,7 +5,7 @@ type Recipe struct {
 	ID              uint32 `json:"id" db:"id"`
 	Name            string `json:"name" db:"name"`
 	BrewTimeSeconds int32  `json:"brew_time_seconds" db:"brew_time_seconds"`
-	Ingredients     []string
+	Ingredients     []*Ingredient
 }
 
 //TODO: пример итерирования ингредиентов

@@ -98,15 +98,15 @@ func (rec *recipes) Save(ctx context.Context, key []byte, body []byte, timeStamp
 		return nil
 	}
 
-	//TODO: проверить создание
-	for _, ingredient := range recipe.Ingredients {
-		newIngredient := &domain.Ingredient{}
-		newIngredient.Name = ingredient
-		_, err := rec.recipesRepository.CreateIngredient(ctx, newIngredient)
-		if err != nil {
-			rec.log.Error("unable to create ingredient", err)
-		}
-	}
+	// //TODO: проверить создание
+	// for _, ingredient := range recipe.Ingredients {
+	// 	newIngredient := &domain.Ingredient{}
+	// 	newIngredient.Name = ingredient
+	// 	_, err := rec.recipesRepository.CreateIngredient(ctx, newIngredient)
+	// 	if err != nil {
+	// 		rec.log.Error("unable to create ingredient", err)
+	// 	}
+	// }
 
 	//fmt.Sprintf("%+v", *recipe)
 	return nil
